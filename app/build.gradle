@@ -1,0 +1,42 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 20
+    buildToolsVersion '20.0.0'
+
+    defaultConfig {
+        applicationId "kr.co.starmark.kidsheriff"
+        minSdkVersion 15
+        targetSdkVersion 20
+        versionCode 1
+        versionName "1.0"
+    }
+    signingConfigs{
+        release{
+            storeFile file(store_file)
+            storePassword store_password
+            keyAlias key_alias
+            keyPassword key_password
+        }
+    }
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.google.android.gms:play-services:+'
+    compile 'com.android.support:support-v4:20.0.+'
+    compile 'com.google.code.gson:gson:2.2.+'
+    compile 'joda-time:joda-time:2.3'
+    compile 'com.mcxiaoke.volley:library:1.0.6'
+    compile 'com.jakewharton:butterknife:5.1.+'
+    compile 'com.nineoldandroids:library:2.4.+'
+    compile files('libs/accessory-v2.0.19.jar')
+    compile files('libs/sdk-v1.0.0.jar')
+}
