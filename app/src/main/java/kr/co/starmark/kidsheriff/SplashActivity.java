@@ -146,7 +146,7 @@ public class SplashActivity extends Activity {
      * {@code SharedPreferences}.
      *
      * @param context application's context.
-     * @param regId registration ID
+     * @param regId   registration ID
      */
     private void storeRegistrationId(Context context, String regId) {
         final SharedPreferences prefs = getGcmPreferences(context);
@@ -160,11 +160,11 @@ public class SplashActivity extends Activity {
 
     /**
      * Gets the current registration ID for application on GCM service, if there is one.
-     * <p>
+     * <p/>
      * If result is empty, the app needs to register.
      *
      * @return registration ID, or empty string if there is no existing
-     *         registration ID.
+     * registration ID.
      */
     private String getRegistrationId(Context context) {
         final SharedPreferences prefs = getGcmPreferences(context);
@@ -248,6 +248,6 @@ public class SplashActivity extends Activity {
     }
 
     private void sendRegistrationIdToBackend() {
-      // Your implementation here.
+        // Your implementation here.
     }
 }

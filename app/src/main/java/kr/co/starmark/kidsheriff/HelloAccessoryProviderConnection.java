@@ -67,8 +67,7 @@ public class HelloAccessoryProviderConnection extends SASocket {
 
     @Override
     protected void onServiceConnectionLost(int errorCode) {
-        Log.e(TAG, "onServiceConectionLost  for peer = " + mConnectionId
-                + "error code =" + errorCode);
+        Log.e(TAG, "onServiceConectionLost  for peer = " + mConnectionId + "error code =" + errorCode);
 
         if (mConnectionsMap != null) {
             mConnectionsMap.remove(mConnectionId);
