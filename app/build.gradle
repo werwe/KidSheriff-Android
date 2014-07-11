@@ -39,4 +39,6 @@ dependencies {
     compile 'com.nineoldandroids:library:2.4.+'
     compile files('libs/accessory-v2.0.19.jar')
     compile files('libs/sdk-v1.0.0.jar')
+
+    compile 'com.andreabaccega:android-form-edittext:1.0.5@aar'
 }

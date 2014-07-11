@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:whatever="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/account_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <Button
+        android:id="@+id/btn_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_weight="1"
+        android:text="+" />
+
+    <com.andreabaccega.widget.FormEditText
+        android:id="@+id/account_field"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@id/btn_add"
+        android:layout_alignTop="@id/btn_add"
+        android:layout_toLeftOf="@id/btn_add"
+        android:inputType="textEmailAddress"
+        whatever:emptyErrorString="비어 있습니다. 이메일을 입력해 주세요."
+        whatever:testErrorString="이메일형식이 아닙니다."
+        whatever:testType="email" />
+
+</RelativeLayout>
