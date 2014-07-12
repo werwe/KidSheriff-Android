@@ -1,8 +1,11 @@
 package kr.co.starmark.kidsheriff;
 
+import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -12,7 +15,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.andreabaccega.formedittextvalidator.Validator;
 import com.andreabaccega.widget.FormEditText;
@@ -42,11 +48,17 @@ public class RegistActivity extends Activity {
     public static final int PARENT = 2;
     private final int ACCOUNT_ITEM_RESID = R.layout.account_item;
 
+    @InjectView(R.id.account_scrollview)
+    ScrollView mAccountScrollView;
+
     @InjectView(R.id.account_container)
     LinearLayout mAccoutListContainer;
 
     @InjectView(R.id.user_account)
     TextView mMyAccount;
+
+    @InjectView(R.id.radio_group)
+    RadioGroup mRadioGroup;
 
     ArrayList<View> mChild = new ArrayList<View>(20);
 
@@ -61,7 +73,11 @@ public class RegistActivity extends Activity {
 
     private void setMyAccount() {
         AccountManager manager = AccountManager.get(this);
-        manager.getAccountsByType("com.google");
+        Account[] accounts = manager.getAccountsByType("com.google");
+        if(accounts.length > 0)
+        {
+            mMyAccount.setText(accounts[0].name);
+        }
 
     }
 
@@ -75,46 +91,59 @@ public class RegistActivity extends Activity {
                 emailList.add(editText.getText().toString());
         }
 
+        final ProgressDialog progress = new ProgressDialog(this);
+        progress.setIndeterminate(false);
+        progress.setMessage("등록중입니다.");
+        progress.show();
 
         Response.Listener<String> response = new Response.Listener<String>()
         {
             @Override
             public void onResponse(String result) {
                 Log.d("result", result);
+                if (result.equals("success")) {
+                    progress.dismiss();
+                    moveToLocationHistoryActivity();
+                }
             }
         };
-
 
         Response.ErrorListener errorCallback = new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 Log.d("onErrorResponse", volleyError.getMessage());
+                Toast.makeText(RegistActivity.this, volleyError.getMessage(), Toast.LENGTH_LONG).show();
+                progress.dismiss();
             }
         };
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
-        //GsonRequest<LinkRequestData> data = new GsonRequest<LinkRequestData>();
         LinkRequestData data = new LinkRequestData();
-        data.email = "werwe.me@gmail.com";
+        data.email = mMyAccount.getText().toString();
         data.linkedAccounts = emailList;
         data.pushid = getRegistrationId(getApplicationContext());
         Log.d("pushId", data.pushid);
-        data.whichSide = PARENT;
+        data.whichSide = mRadioGroup.getCheckedRadioButtonId() == R.id.parent ? 2 : 1 ;
         Gson gson = new Gson();
         gson.toJson(data).toString();
         requestQueue.add(
-                new GsonRequest<String>(
-                        Request.Method.POST,
-                        "http://kid-sheriff-001.appspot.com/apis/link",
-                        String.class,
-                        gson.toJson(data).toString(),
-                        response,
-                        errorCallback
-                       ));
+            new GsonRequest<String>(
+                Request.Method.POST,
+                "http://kid-sheriff-001.appspot.com/apis/link",
+                String.class,
+                gson.toJson(data).toString(),
+                response,
+                errorCallback
+            )
+        );
+    }
 
-
-
-
+    private void moveToLocationHistoryActivity() {
+        //registration result save
+        Intent intent = new Intent(this,LocationHistoryActivity.class);
+        startActivity(intent);
+        finish();
+        overridePendingTransition(android.R.anim.fade_in,android.R.anim.fade_out);
     }
 
     private String getRegistrationId(Context context) {
@@ -183,6 +212,12 @@ public class RegistActivity extends Activity {
         setItemActionCallback(v);
         mAccoutListContainer.addView(v);
         mChild.add(v);
+        mAccountScrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                mAccountScrollView.smoothScrollTo(0, mAccountScrollView.getBottom());
+            }
+        });
     }
 
     private View makeAccountFieldView() {

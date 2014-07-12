@@ -42,14 +42,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        >
-
+        android:checkedButton="@+id/parent"
+    >
         <RadioButton
-            android:checked="true"
+            android:id="@id/parent"
             android:text="부모 사용자 입니다."
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <RadioButton
+            android:id="@+id/child"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="아이 사용자 입니다."

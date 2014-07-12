@@ -15,10 +15,15 @@
  */
 package kr.co.starmark.kidsheriff;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -30,10 +35,18 @@ import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.gson.Gson;
 import com.nineoldandroids.view.ViewHelper;
 
 import java.io.IOException;
@@ -41,6 +54,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import kr.co.starmark.kidsheriff.request.GsonRequest;
+import kr.co.starmark.kidsheriff.request.LinkRequestData;
 
 
 public class SplashActivity extends Activity {
@@ -68,11 +83,86 @@ public class SplashActivity extends Activity {
     private Runnable mStartAct = new Runnable() {
         @Override
         public void run() {
-            startActivity(new Intent(getApplicationContext(), RegistActivity.class));
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            finish();
+            getAccountInfomation();
         }
     };
+
+    private void getAccountInfomation() {
+        AccountManager manager = AccountManager.get(this);
+        Account[] accounts = manager.getAccountsByType("com.google");
+        if(accounts.length <= 0)
+        {
+            accountMissingAlert();
+            return;
+        }
+        checkAccount(accounts[0].name);
+    }
+
+    private void checkAccount(String name) {
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setIndeterminate(false);
+        dialog.setMessage(name + "의 계정 정보를 확인합니다");
+        dialog.show();
+        Response.Listener<String> response = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String result) {
+                Log.d("result", result);
+                dialog.dismiss();
+                if (result.equals("notExist")) {
+                    startActivity(new Intent(getApplicationContext(), RegistActivity.class));
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    finish();
+                } else {
+                    startActivity(new Intent(getApplicationContext(), LocationHistoryActivity.class));
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    finish();
+                }
+            }
+        };
+
+        Response.ErrorListener errorCallback = new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.d("onErrorResponse", volleyError.getMessage());
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
+                builder.setTitle("계정을 확인하던 중 오류가 발생했습니다.");
+                builder.setMessage(volleyError.getMessage());
+                builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finish();
+                    }
+                });
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(
+                new StringRequest(
+                        Request.Method.GET,
+                        "http://kid-sheriff-001.appspot.com/apis/check/account="+name,
+                        response,
+                        errorCallback
+                )
+        );
+    }
+
+    private void moveToLocationHistoryActivity() {
+
+    }
+
+    private void accountMissingAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("1개 이상의 구글 계정이 필요합니다.");
+        builder.setPositiveButton("확인",new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Toast.makeText(SplashActivity.this.getApplicationContext(), "앱을 종료합니다", Toast.LENGTH_LONG).show();
+                finish();
+            }
+        });
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -111,7 +201,8 @@ public class SplashActivity extends Activity {
                 mLogoAnimator.setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        mLogo.postDelayed(mStartAct, 1500);
+                        //mLogo.postDelayed(mStartAct, 1500);
+                        mStartAct.run();
                     }
                 });
             }

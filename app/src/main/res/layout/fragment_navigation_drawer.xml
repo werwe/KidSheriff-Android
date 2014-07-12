@@ -1,0 +1,23 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/recent_photo"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/navigation_drawer_width"
+        android:scaleType="centerCrop"
+        android:layout_alignParentBottom="true"
+        />
+    <ListView
+        android:layout_above="@id/recent_photo"
+        android:id="@+id/account_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#cccc"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        tools:context="kr.co.starmark.kidsheriff.NavigationDrawerFragment" />
+</RelativeLayout>
