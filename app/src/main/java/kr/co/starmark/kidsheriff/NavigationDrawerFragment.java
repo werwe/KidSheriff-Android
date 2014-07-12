@@ -74,7 +74,7 @@ public class NavigationDrawerFragment extends Fragment {
 
          View drawerView = inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
-        mDrawerListView = ButterKnife.findById(R.id.)
+        mDrawerListView = ButterKnife.findById(drawerView,R.id.account_list);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
