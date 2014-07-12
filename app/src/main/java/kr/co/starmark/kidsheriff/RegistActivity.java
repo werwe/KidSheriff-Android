@@ -1,5 +1,6 @@
 package kr.co.starmark.kidsheriff;
 
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.andreabaccega.formedittextvalidator.Validator;
 import com.andreabaccega.widget.FormEditText;
@@ -43,6 +45,8 @@ public class RegistActivity extends Activity {
     @InjectView(R.id.account_container)
     LinearLayout mAccoutListContainer;
 
+    @InjectView(R.id.user_account)
+    TextView mMyAccount;
 
     ArrayList<View> mChild = new ArrayList<View>(20);
 
@@ -51,7 +55,14 @@ public class RegistActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_regist);
         ButterKnife.inject(this);
+        setMyAccount();
         addAccountField();
+    }
+
+    private void setMyAccount() {
+        AccountManager manager = AccountManager.get(this);
+        manager.getAccountsByType("com.google");
+
     }
 
     @OnClick(R.id.btn_regitst)
