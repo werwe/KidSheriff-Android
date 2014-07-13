@@ -37,6 +37,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import kr.co.starmark.kidsheriff.request.GsonRequest;
 import kr.co.starmark.kidsheriff.request.LinkRequestData;
+import kr.co.starmark.kidsheriff.request.UserDataResult;
 
 
 public class RegistActivity extends Activity {
@@ -62,23 +63,19 @@ public class RegistActivity extends Activity {
 
     ArrayList<View> mChild = new ArrayList<View>(20);
 
+    private UserDataResult mUserData;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_regist);
         ButterKnife.inject(this);
+        mUserData = getIntent().getParcelableExtra("userinfo");
         setMyAccount();
         addAccountField();
     }
 
     private void setMyAccount() {
-        AccountManager manager = AccountManager.get(this);
-        Account[] accounts = manager.getAccountsByType("com.google");
-        if(accounts.length > 0)
-        {
-            mMyAccount.setText(accounts[0].name);
-        }
-
+       mMyAccount.setText(mUserData.getEmail());
     }
 
     @OnClick(R.id.btn_regitst)

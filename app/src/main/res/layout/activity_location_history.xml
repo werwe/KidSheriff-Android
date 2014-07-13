@@ -18,6 +18,67 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:id="@+id/location_controll_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/map_nav_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="<" />
+
+            <Button
+                android:id="@+id/map_nav_prev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=">" />
+
+            <Button
+                android:id="@+id/map_nav_recent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/recent_location" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:visibility="gone"
+            android:id="@+id/progress_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:orientation="horizontal">
+
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="false"
+            />
+
+            <TextView
+                android:id="@+id/progress_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="8dp"
+                android:text="@string/getting_map_information"
+                android:textSize="16dp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_refresh_map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_margin="8dp"
+            android:text="@string/refresh_map" />
     </FrameLayout>
 
     <!-- android:layout_gravity="start" tells DrawerLayout to treat

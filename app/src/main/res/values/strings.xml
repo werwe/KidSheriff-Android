@@ -10,5 +10,8 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
+    <string name="getting_map_information">위치 정보를 가져오는 중 입니다.</string>
+    <string name="recent_location">최근위치</string>
+    <string name="refresh_map">갱신</string>
 
 </resources>

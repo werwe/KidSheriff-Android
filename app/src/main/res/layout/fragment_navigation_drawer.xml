@@ -11,8 +11,21 @@
         android:src="@drawable/testimg"
         android:layout_alignParentBottom="true"
         />
-    <ListView
+    <TextView
+        android:id="@+id/recent_photo_title"
+        android:background="#F0F0F0"
         android:layout_above="@id/recent_photo"
+        android:text="최근사진"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <View
+        android:id="@+id/seperate_line"
+        android:layout_above="@id/recent_photo_title"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
+    <ListView
+        android:layout_above="@id/seperate_line"
         android:id="@+id/account_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

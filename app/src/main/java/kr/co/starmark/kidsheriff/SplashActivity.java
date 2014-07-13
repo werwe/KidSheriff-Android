@@ -1,21 +1,6 @@
-/*
- * Copyright 2013 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+
 package kr.co.starmark.kidsheriff;
 
-import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -34,7 +19,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -43,10 +27,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.gson.Gson;
 import com.nineoldandroids.view.ViewHelper;
 
 import java.io.IOException;
@@ -55,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import kr.co.starmark.kidsheriff.request.GsonRequest;
-import kr.co.starmark.kidsheriff.request.LinkRequestData;
+import kr.co.starmark.kidsheriff.request.UserDataResult;
 
 
 public class SplashActivity extends Activity {
@@ -64,7 +48,7 @@ public class SplashActivity extends Activity {
     public static final String PROPERTY_REG_ID = "registration_id";
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-
+    private static final int ACCOUNT_PICKER_REQUEST = 10000;
     String SENDER_ID = "1098403155208";
 
     static final String TAG = "SplashScreen";
@@ -83,40 +67,57 @@ public class SplashActivity extends Activity {
     private Runnable mStartAct = new Runnable() {
         @Override
         public void run() {
-            getAccountInfomation();
+            checkDefaultAccount();
         }
     };
 
-    private void getAccountInfomation() {
-        AccountManager manager = AccountManager.get(this);
-        Account[] accounts = manager.getAccountsByType("com.google");
-        if(accounts.length <= 0)
+    private void checkDefaultAccount() {
+        SharedPref pref = SharedPref.get(this);
+        String defaultAccount = pref.loadDefaultAccount();
+        if(defaultAccount == null)
         {
-            accountMissingAlert();
-            return;
+            Intent intent = AccountPicker.newChooseAccountIntent(null, null, new String[]{"com.google"},
+                    false, null, null, null, null);
+            startActivityForResult(intent, ACCOUNT_PICKER_REQUEST);
         }
-        checkAccount(accounts[0].name);
+        else
+        {
+            checkServerAccount(defaultAccount);
+        }
     }
 
-    private void checkAccount(String name) {
+    protected void onActivityResult(final int requestCode, final int resultCode,final Intent data) {
+        if (requestCode == ACCOUNT_PICKER_REQUEST && resultCode == RESULT_OK) {
+            String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+            SharedPref.get(this).saveDefaultAccount(accountName);
+            checkServerAccount(accountName);
+        }
+        else
+        {
+            finish();
+        }
+    }
+
+    private void checkServerAccount(String name) {
         final ProgressDialog dialog = new ProgressDialog(this);
         dialog.setIndeterminate(false);
         dialog.setMessage(name + "의 계정 정보를 확인합니다");
         dialog.show();
-        Response.Listener<String> response = new Response.Listener<String>() {
+
+        Response.Listener<UserDataResult> response = new Response.Listener<UserDataResult>() {
             @Override
-            public void onResponse(String result) {
-                Log.d("result", result);
+            public void onResponse(UserDataResult result) {
+                Log.d("result", result.getResult());
                 dialog.dismiss();
-                if (result.equals("notExist")) {
-                    startActivity(new Intent(getApplicationContext(), RegistActivity.class));
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                    finish();
-                } else {
-                    startActivity(new Intent(getApplicationContext(), LocationHistoryActivity.class));
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                    finish();
-                }
+                Intent intent = null;
+                if (result.getResult().equals("notExist"))
+                    intent = new Intent(getApplicationContext(), RegistActivity.class);
+                else
+                    intent = new Intent(getApplicationContext(), LocationHistoryActivity.class);
+                intent.putExtra("userinfo", result);
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                finish();
             }
         };
 
@@ -124,7 +125,6 @@ public class SplashActivity extends Activity {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 Log.d("onErrorResponse", volleyError.getMessage());
-
                 AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
                 builder.setTitle("계정을 확인하던 중 오류가 발생했습니다.");
                 builder.setMessage(volleyError.getMessage());
@@ -133,35 +133,21 @@ public class SplashActivity extends Activity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         finish();
                     }
-                });
+                }).show();
             }
         };
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(
-                new StringRequest(
+                new GsonRequest(
                         Request.Method.GET,
                         "http://kid-sheriff-001.appspot.com/apis/check/account="+name,
+                        UserDataResult.class,
+                        null,
                         response,
                         errorCallback
                 )
         );
-    }
-
-    private void moveToLocationHistoryActivity() {
-
-    }
-
-    private void accountMissingAlert() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("1개 이상의 구글 계정이 필요합니다.");
-        builder.setPositiveButton("확인",new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(SplashActivity.this.getApplicationContext(), "앱을 종료합니다", Toast.LENGTH_LONG).show();
-                finish();
-            }
-        });
     }
 
     @Override
@@ -182,13 +168,13 @@ public class SplashActivity extends Activity {
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
         }
+        ShowLogo();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         checkPlayServices();
-        ShowLogo();
     }
 
     private void ShowLogo() {
@@ -201,7 +187,6 @@ public class SplashActivity extends Activity {
                 mLogoAnimator.setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        //mLogo.postDelayed(mStartAct, 1500);
                         mStartAct.run();
                     }
                 });
@@ -264,9 +249,10 @@ public class SplashActivity extends Activity {
             Log.i(TAG, "Registration not found.");
             return "";
         }
-        // Check if app was updated; if so, it must clear the registration ID
-        // since the existing regID is not guaranteed to work with the new
-        // app version.
+        //앱이 업데이트 되면 기존registration id 가 푸시를 받는 걸 보장 하지 않는다.
+        //해서 빈 아이디를 던지고 새로 받도록 처리한다.
+        //서버의 push id 도 같이 갱신 해야한다.
+        //default account로 push id 갱신하는 코드를 넣어야 함.
         int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
         int currentVersion = getAppVersion(context);
         if (registeredVersion != currentVersion) {
@@ -287,7 +273,6 @@ public class SplashActivity extends Activity {
                     }
                     regid = gcm.register(SENDER_ID);
                     msg = "Device registered, registration ID=" + regid;
-                    sendRegistrationIdToBackend();
                     storeRegistrationId(context, regid);
                 } catch (IOException ex) {
                     msg = "Error :" + ex.getMessage();
@@ -296,6 +281,38 @@ public class SplashActivity extends Activity {
             }
         }.execute(null, null, null);
     }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    private static int getAppVersion(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionCode;
+        } catch (NameNotFoundException e) {
+            throw new RuntimeException("Could not get package name: " + e);
+        }
+    }
+
+    private SharedPreferences getGcmPreferences(Context context) {
+        return getSharedPreferences("GCMStorePref", Context.MODE_PRIVATE);
+    }
+}
+
+
+//    private void accountMissingAlert() {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.setMessage("1개 이상의 구글 계정이 필요합니다.");
+//        builder.setPositiveButton("확인",new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialogInterface, int i) {
+//                Toast.makeText(SplashActivity.this.getApplicationContext(), "앱을 종료합니다", Toast.LENGTH_LONG).show();
+//                finish();
+//            }
+//        });
+//    }
 
 //send message
 //            new AsyncTask<Void, Void, String>() {
@@ -314,31 +331,3 @@ public class SplashActivity extends Activity {
 //                    }
 //                    return msg;
 //                }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    /**
-     * @return Application's version code from the {@code PackageManager}.
-     */
-    private static int getAppVersion(Context context) {
-        try {
-            PackageInfo packageInfo = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0);
-            return packageInfo.versionCode;
-        } catch (NameNotFoundException e) {
-            throw new RuntimeException("Could not get package name: " + e);
-        }
-    }
-
-    private SharedPreferences getGcmPreferences(Context context) {
-        return getSharedPreferences("GCMStorePref", Context.MODE_PRIVATE);
-    }
-
-    private void sendRegistrationIdToBackend() {
-        // Your implementation here.
-    }
-}
