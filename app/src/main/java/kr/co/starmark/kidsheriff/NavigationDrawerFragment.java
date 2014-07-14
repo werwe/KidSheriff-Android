@@ -273,6 +273,9 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     public String getSelectedAccount() {
+        if(mUserData.getLinkedAccounts().size() == 0)
+            return "";
+
         return mUserData.getLinkedAccounts().get(mCurrentSelectedPosition);
     }
 

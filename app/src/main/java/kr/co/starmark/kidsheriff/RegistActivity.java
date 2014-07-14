@@ -1,7 +1,5 @@
 package kr.co.starmark.kidsheriff;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -61,6 +59,9 @@ public class RegistActivity extends Activity {
     @InjectView(R.id.radio_group)
     RadioGroup mRadioGroup;
 
+    @InjectView(R.id.text_regist)
+    TextView mTextView;
+
     ArrayList<View> mChild = new ArrayList<View>(20);
 
     private UserDataResult mUserData;
@@ -70,6 +71,16 @@ public class RegistActivity extends Activity {
         setContentView(R.layout.activity_regist);
         ButterKnife.inject(this);
         mUserData = getIntent().getParcelableExtra("userinfo");
+        mRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                Log.d(TAG,"onCheckChangeListener:"+i);
+                if(i == R.id.parent)
+                    mTextView.setText("아이 휴대폰의 계정을 입력해 주세요.");
+                else if(i == R.id.child)
+                    mTextView.setText("부모님 휴대폰의 계정을 입력해 주세요.");
+            }
+        });
         setMyAccount();
         addAccountField();
     }
@@ -78,12 +89,18 @@ public class RegistActivity extends Activity {
        //mMyAccount.setText(mUserData.getEmail());
     }
 
-    @OnClick(R.id.btn_regitst)
+    @OnClick(R.id.btn_regist)
     void onRegistClick() {
-        EditText editText;
+        FormEditText editText;
         List<String> emailList = new ArrayList<String>();
         for (View v : mChild) {
             editText = ButterKnife.findById(v, R.id.account_field);
+            if(!editText.testValidity())
+                return;
+        }
+        for (View v : mChild) {
+            editText = ButterKnife.findById(v, R.id.account_field);
+
             if (!editText.isEnabled())
                 emailList.add(editText.getText().toString());
         }
@@ -206,6 +223,8 @@ public class RegistActivity extends Activity {
 
     private void addAccountField() {
         View v = makeAccountFieldView();
+        FormEditText fet = ButterKnife.findById(v, R.id.account_field);
+        fet.addValidator(new SameAccountValidator());
         setItemActionCallback(v);
         mAccoutListContainer.addView(v);
         mChild.add(v);
@@ -235,6 +254,26 @@ public class RegistActivity extends Activity {
                     continue;
                 if (et.getText().toString().equals(editText.getText().toString()))
                     return false;
+            }
+            return true;
+        }
+    }
+
+    class SameAccountValidator extends Validator {
+        public SameAccountValidator() {
+            super("현재 휴대폰과 같은 계정 입니다.");
+
+        }
+
+        @Override
+        public boolean isValid(EditText editText) {
+            SharedPref pref = SharedPref.get(RegistActivity.this);
+            //Log.d(TAG,"Same Account Validator");
+            //Log.d(TAG,pref.loadDefaultAccount());
+            //Log.d(TAG,editText.getText().toString());
+            if (pref.loadDefaultAccount().equals(editText.getText().toString()))
+            {
+                return false;
             }
             return true;
         }

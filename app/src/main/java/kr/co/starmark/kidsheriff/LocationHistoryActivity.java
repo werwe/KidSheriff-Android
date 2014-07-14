@@ -139,9 +139,12 @@ public class LocationHistoryActivity extends FragmentActivity
         Response.ErrorListener errorCallback = new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Log.d("onErrorResponse", volleyError.getMessage());
+                Log.d("onErrorResponse", " "+volleyError.getMessage());
                 Toast.makeText(LocationHistoryActivity.this, volleyError.getMessage(), Toast.LENGTH_LONG).show();
+                removePolyLine();
+                removeCurrentCircle();
                 mProgressContainer.setVisibility(View.GONE);
+                hideControlPanel();
             }
         };
 
@@ -343,6 +346,9 @@ public class LocationHistoryActivity extends FragmentActivity
     }
 
     public void onSectionAttached(int number) {
+        if(mUserData.getLinkedAccounts().size() == 0)
+            return;
+        Log.d(TAG,"onsectionAttaced: number " + number);
         mTitle = mUserData.getLinkedAccounts().get(number-1);
         updateLocationHistory();
     }

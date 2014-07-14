@@ -11,57 +11,58 @@
     tools:context=".RegistActivity">
 
     <!--<TextView-->
-        <!--android:id="@+id/user_account"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="center_horizontal"-->
-        <!--android:text="wer..@gmail.com"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large" />-->
+    <!--android:id="@+id/user_account"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="center_horizontal"-->
+    <!--android:text="wer..@gmail.com"-->
+    <!--android:layout_marginBottom="8dp"-->
+    <!--android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large" />-->
 
-        <!--android:layout_below="@id/user_account"-->
+    <!--android:layout_below="@id/user_account"-->
+
+    <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:checkedButton="@+id/parent"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@id/parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="부모 사용자 입니다." />
+
+        <RadioButton
+            android:id="@+id/child"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="아이 사용자 입니다." />
+    </RadioGroup>
+
     <TextView
+        android:layout_below="@id/radio_group"
         android:id="@+id/text_regist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="연결할 계정을 입력해 주세요"
+        android:text="아이 휴대폰의 계정을 입력해 주세요"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large" />
 
     <Button
-        android:id="@+id/btn_regitst"
+        android:id="@+id/btn_regist"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_alignParentBottom="true"
         android:text=" 등  록 " />
 
-    <RadioGroup
-        android:layout_above="@id/btn_regitst"
-        android:id="@+id/radio_group"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:checkedButton="@+id/parent"
-    >
-        <RadioButton
-            android:id="@id/parent"
-            android:text="부모 사용자 입니다."
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <RadioButton
-            android:id="@+id/child"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="아이 사용자 입니다."
-            />
-    </RadioGroup>
-
     <ScrollView
         android:id="@+id/account_scrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/radio_group"
+        android:layout_above="@id/btn_regist"
         android:layout_below="@id/text_regist"
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp">

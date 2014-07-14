@@ -46,7 +46,7 @@ public class LocationUpdater implements
     LocationRequest mLocationRequest;
     boolean mUpdatesRequested;
 
-    public void LocationChecker(Context context) {
+    public LocationUpdater(Context context) {
         mContext = context;
         mLocationClient = new LocationClient(context, this, this);
         mLocationRequest = LocationRequest.create();

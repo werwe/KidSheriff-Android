@@ -79,7 +79,7 @@ public class LocationUploadService extends IntentService {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        mLocationUpdater = new LocationUpdater();
+        mLocationUpdater = new LocationUpdater(getApplicationContext());
         mLocationUpdater.connect();
     }
 
