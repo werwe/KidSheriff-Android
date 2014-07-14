@@ -98,7 +98,7 @@ public class SplashActivity extends Activity {
         }
     }
 
-    private void checkServerAccount(String name) {
+    private void checkServerAccount(final String name) {
         final ProgressDialog dialog = new ProgressDialog(this);
         dialog.setIndeterminate(false);
         dialog.setMessage(name + "의 계정 정보를 확인합니다");
@@ -114,6 +114,7 @@ public class SplashActivity extends Activity {
                     intent = new Intent(getApplicationContext(), RegistActivity.class);
                 else
                     intent = new Intent(getApplicationContext(), LocationHistoryActivity.class);
+                result.setEmail(name);
                 intent.putExtra("userinfo", result);
                 startActivity(intent);
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

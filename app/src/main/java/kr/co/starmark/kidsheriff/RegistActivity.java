@@ -55,8 +55,8 @@ public class RegistActivity extends Activity {
     @InjectView(R.id.account_container)
     LinearLayout mAccoutListContainer;
 
-    @InjectView(R.id.user_account)
-    TextView mMyAccount;
+    //@InjectView(R.id.user_account)
+    //TextView mMyAccount;
 
     @InjectView(R.id.radio_group)
     RadioGroup mRadioGroup;
@@ -75,7 +75,7 @@ public class RegistActivity extends Activity {
     }
 
     private void setMyAccount() {
-       mMyAccount.setText(mUserData.getEmail());
+       //mMyAccount.setText(mUserData.getEmail());
     }
 
     @OnClick(R.id.btn_regitst)
@@ -116,7 +116,7 @@ public class RegistActivity extends Activity {
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         LinkRequestData data = new LinkRequestData();
-        data.email = mMyAccount.getText().toString();
+        data.email = mUserData.getEmail();
         data.linkedAccounts = emailList;
         data.pushid = getRegistrationId(getApplicationContext());
         Log.d("pushId", data.pushid);

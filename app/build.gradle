@@ -29,10 +29,12 @@ android {
 }
 
 
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile files('libs/accessory-v2.0.19.jar')
     compile files('libs/sdk-v1.0.0.jar')
+    // You must install or update the Support Repository through the SDK manager to use this dependency.
     compile 'com.google.android.gms:play-services:+'
     // You must install or update the Support Repository through the SDK manager to use this dependency.
     compile 'com.android.support:support-v4:20.0.+'
@@ -42,6 +44,6 @@ dependencies {
     compile 'com.jakewharton:butterknife:5.1.+'
     compile 'com.nineoldandroids:library:2.4.+'
     compile 'com.andreabaccega:android-form-edittext:1.0.5@aar'
-    compile 'com.google.maps.android:android-maps-utils:0.3+'
+    compile 'com.google.maps.android:android-maps-utils:0.3.+'
     compile 'com.google.guava:guava:16.0.+'
 }

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -12,6 +13,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
@@ -29,11 +32,19 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 
+import org.joda.time.DateTime;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -47,6 +58,7 @@ import kr.co.starmark.kidsheriff.request.UserDataResult;
 public class LocationHistoryActivity extends FragmentActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
+    private static final String TAG = "LocalHistoryActivity";
     private GoogleMap mGoogleMap = null;
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private LocationManager mLocManager;
@@ -60,15 +72,16 @@ public class LocationHistoryActivity extends FragmentActivity
 
     @InjectView(R.id.progress_container)
     View mProgressContainer;
-    @InjectView(R.id.btn_refresh_map)
-    View mRefreshButton;
+
     @InjectView(R.id.location_controll_panel)
     View mControllPanel;
 
     private List<kr.co.starmark.kidsheriff.request.Location> mLocations = new ArrayList<kr.co.starmark.kidsheriff.request.Location>();
     private Polyline mCurrentPolyLine = null;
     private Circle mCurrentCircle = null;
+    private Marker mCurrentMarker = null;
     private int mLocationHead = 0;
+    private int mStoredSection = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,26 +108,30 @@ public class LocationHistoryActivity extends FragmentActivity
         }
     }
 
-    @OnClick(R.id.btn_refresh_map)
-    private void updateLocationHistory()
+    void updateLocationHistory()
     {
         mProgressContainer.setVisibility(View.VISIBLE);
-        mRefreshButton.setVisibility(View.GONE);
         Response.Listener<LocationHistoryResult> response = new Response.Listener<LocationHistoryResult>()
         {
             @Override
             public void onResponse(LocationHistoryResult result) {
                 Log.d("result", result.toString());
+                mLocations = result.getList();
                 if(result.getList().size() == 0)
                 {
+
                     removePolyLine();
                     removeCurrentCircle();
                     hideControlPanel();
+                    mProgressContainer.setVisibility(View.GONE);
+
+                    return;
                 }
+                sortList();
+                showControlPanel();
                 displayLocationLine(result);
                 displayLocationCircle(result.getList().get(0));
                 mProgressContainer.setVisibility(View.GONE);
-                mRefreshButton.setVisibility(View.VISIBLE);
                 moveToCurrentLocation(result.getList().get(0));
             }
         };
@@ -125,13 +142,13 @@ public class LocationHistoryActivity extends FragmentActivity
                 Log.d("onErrorResponse", volleyError.getMessage());
                 Toast.makeText(LocationHistoryActivity.this, volleyError.getMessage(), Toast.LENGTH_LONG).show();
                 mProgressContainer.setVisibility(View.GONE);
-                mRefreshButton.setVisibility(View.VISIBLE);
             }
         };
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         HistoryRequestData data = new HistoryRequestData();
         data.setRequestorId(mUserData.getEmail());
+        Log.d(TAG, mNavigationDrawerFragment.getSelectedAccount());
         data.setTargetUserId(mNavigationDrawerFragment.getSelectedAccount());
         data.setLimit(100);
         Gson gson = new Gson();
@@ -148,6 +165,21 @@ public class LocationHistoryActivity extends FragmentActivity
         );
     }
 
+    private void sortList() {
+        String strArray = Arrays.toString(mLocations.toArray(new kr.co.starmark.kidsheriff.request.Location[mLocations.size()]));
+        //Log.d("LocalHistoryActivity","before: \n" + strArray);
+        Collections.sort(mLocations, new Comparator<kr.co.starmark.kidsheriff.request.Location>() {
+            @Override
+            public int compare(kr.co.starmark.kidsheriff.request.Location location, kr.co.starmark.kidsheriff.request.Location location2) {
+                DateTime date1 = DateTime.parse(location.getDate());
+                DateTime date2 = DateTime.parse(location2.getDate());
+                return date2.compareTo(date1);
+            }
+        });
+        strArray = Arrays.toString(mLocations.toArray(new kr.co.starmark.kidsheriff.request.Location[mLocations.size()]));
+        //Log.d("LocalHistoryActivity","before: \n" + strArray);
+    }
+
     private void hideControlPanel() {
         mControllPanel.setVisibility(View.GONE);
     }
@@ -155,6 +187,20 @@ public class LocationHistoryActivity extends FragmentActivity
     private void showControlPanel()
     {
         mControllPanel.setVisibility(View.VISIBLE);
+    }
+
+    private void displayMarker(kr.co.starmark.kidsheriff.request.Location loc,String msg)
+    {
+        mCurrentMarker = mGoogleMap.addMarker(new MarkerOptions()
+            .position(new LatLng(loc.getLat(), loc.getLng()))
+            .title(msg));
+    }
+
+    private void removeMarker()
+    {
+        if(mCurrentMarker != null)
+            mCurrentMarker.remove();
+        mCurrentMarker = null;
     }
 
     private void displayLocationLine(LocationHistoryResult result) {
@@ -166,9 +212,10 @@ public class LocationHistoryActivity extends FragmentActivity
 
         PolylineOptions options = new PolylineOptions();
         options.color(Color.parseColor("#99CC00"));
-        options.width(2f);
+        options.width(4f);
         options.geodesic(true);
         options.addAll(lists);
+        options.zIndex(0f);
         mCurrentPolyLine = mGoogleMap.addPolyline(options);
     }
 
@@ -187,8 +234,9 @@ public class LocationHistoryActivity extends FragmentActivity
         options.fillColor(Color.parseColor("#FFBB33"));
         options.strokeColor(Color.parseColor("#FF8800"));
         options.center(center);
-        options.radius(1f);
-        options.strokeWidth(1f);
+        options.radius(3f);
+        options.strokeWidth(2f);
+        options.zIndex(1);
         mCurrentCircle =  mGoogleMap.addCircle(options);
     }
 
@@ -200,7 +248,7 @@ public class LocationHistoryActivity extends FragmentActivity
 
     private void moveToCurrentLocation(kr.co.starmark.kidsheriff.request.Location loc) {
         LatLng latLng = new LatLng(loc.getLat(),loc.getLng());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 5);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 18);
         mGoogleMap.animateCamera(cameraUpdate);
     }
 
@@ -208,33 +256,60 @@ public class LocationHistoryActivity extends FragmentActivity
     void nextLocation()
     {
         int length = mLocations.size()-1;
-        if(mLocationHead < length)
-            mLocationHead++;
-        else
+        if(mLocationHead >= 0)
+            mLocationHead--;
+
+        if(mLocationHead == -1)
             mLocationHead = 0;
-        displayLocationCircle(getLocation(mLocationHead));
+
+        displayHeadLocation();
+
+        removeMarker();
+        if(mLocationHead == 0)
+            displayMarker(getLocation(mLocationHead),"가장 최근 위치 입니다.");
+        else
+            displayMarker(getLocation(mLocationHead),"");
     }
 
     @OnClick(R.id.map_nav_prev)
-    private void prevLocation()
+    void prevLocation()
     {
         int length = mLocations.size()-1;
-        if(mLocationHead >= 0)
-            mLocationHead--;
-        if(mLocationHead == -1)
+        if(mLocationHead < length)
+            mLocationHead++;
+        else
             mLocationHead = length;
-        displayLocationCircle(getLocation(mLocationHead));
+
+        removeMarker();
+        displayHeadLocation();
+
+        if(mLocationHead == length)
+            displayMarker(getLocation(mLocationHead),"처음 기록된 위치 입니다.");
+        else
+            displayMarker(getLocation(mLocationHead),"");
     }
 
     @OnClick(R.id.map_nav_recent)
-    private void recentLocation()
+    void recentLocation()
     {
         mLocationHead = 0;
-        displayLocationCircle(getLocation(mLocationHead));
+        removeMarker();
+        displayMarker(getLocation(mLocationHead),"최근 기록된 위치 입니다.");
+        displayHeadLocation();
     }
 
     private kr.co.starmark.kidsheriff.request.Location getLocation(int locationHead) {
         return  mLocations.get(locationHead);
+    }
+
+    private void moveToHeadLocation( kr.co.starmark.kidsheriff.request.Location headLocation) {
+        moveToCurrentLocation(headLocation);
+    }
+
+    private void displayHeadLocation() {
+        kr.co.starmark.kidsheriff.request.Location headLocation = getLocation(mLocationHead);
+        displayLocationCircle(headLocation);
+        moveToHeadLocation(headLocation);
     }
 
     protected void onResume() {
@@ -248,7 +323,7 @@ public class LocationHistoryActivity extends FragmentActivity
                     R.id.map)).getMap();
 
             mGoogleMap.setMyLocationEnabled(false);
-            mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
+            mGoogleMap.getUiSettings().setZoomControlsEnabled(false);
             // check if map is created successfully or not
             if (mGoogleMap == null) {
                 Toast.makeText(getApplicationContext(),
@@ -268,16 +343,51 @@ public class LocationHistoryActivity extends FragmentActivity
     }
 
     public void onSectionAttached(int number) {
-            mTitle = mUserData.getLinkedAccounts().get(number);
+        mTitle = mUserData.getLinkedAccounts().get(number-1);
+        updateLocationHistory();
     }
 
     public void restoreActionBar() {
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
+        actionBar.setTitle(mNavigationDrawerFragment.getSelectedAccount());
+        //actionBar.setTitle(mTitle);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //if (!mNavigationDrawerFragment.isDrawerOpen()) {
+            getMenuInflater().inflate(R.menu.location_history, menu);
+            restoreActionBar();
+        //    return true;
+        //}
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if( id == R.id.action_refresh)
+        {
+            updateLocationHistory();
+            return true;
+        }
+        if (id == R.id.action_settings) {
+            startSettingActivity();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void startSettingActivity() {
+        Intent intent = new Intent(getApplicationContext(),SettingsActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * A placeholder fragment containing a simple view.
+     */
     public static class PlaceholderFragment extends Fragment {
 
         private static final String ARG_SECTION_NUMBER = "section_number";

@@ -1,11 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="kr.co.starmark.kidsheriff.LocationHistoryActivity" >
-    <item android:id="@+id/action_example"
+    <item android:id="@+id/action_refresh"
+        android:icon="@drawable/ic_action_refresh"
         android:title="@string/action_example"
-        android:showAsAction="withText|ifRoom" />
+        android:showAsAction="always" />
     <item android:id="@+id/action_settings"
+        android:icon="@drawable/ic_action_settings"
         android:title="@string/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:showAsAction="always" />
 </menu>
