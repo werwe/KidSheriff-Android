@@ -1,8 +1,10 @@
 package kr.co.starmark.kidsheriff;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -95,7 +97,7 @@ public class RegistActivity extends Activity {
         List<String> emailList = new ArrayList<String>();
         for (View v : mChild) {
             editText = ButterKnife.findById(v, R.id.account_field);
-            if(!editText.testValidity())
+            if(!editText.isEnabled() && !editText.testValidity())
                 return;
         }
         for (View v : mChild) {
@@ -103,6 +105,12 @@ public class RegistActivity extends Activity {
 
             if (!editText.isEnabled())
                 emailList.add(editText.getText().toString());
+        }
+
+        if(emailList.size() == 0)
+        {
+            emptyListWarnning();
+            return;
         }
 
         final ProgressDialog progress = new ProgressDialog(this);
@@ -138,6 +146,9 @@ public class RegistActivity extends Activity {
         data.pushid = getRegistrationId(getApplicationContext());
         Log.d("pushId", data.pushid);
         data.whichSide = mRadioGroup.getCheckedRadioButtonId() == R.id.parent ? 2 : 1 ;
+
+        mUserData.setLinkedAccounts(data.linkedAccounts);
+        mUserData.setWhichSide(data.whichSide);
         Gson gson = new Gson();
         gson.toJson(data).toString();
         requestQueue.add(
@@ -152,9 +163,16 @@ public class RegistActivity extends Activity {
         );
     }
 
+    private void emptyListWarnning() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("최소 1개의 개정을 입력 해야 합니다.");
+        builder.setPositiveButton("확인", null).show();
+    }
+
     private void moveToLocationHistoryActivity() {
         //registration result save
         Intent intent = new Intent(this,LocationHistoryActivity.class);
+        intent.putExtra("userinfo",mUserData);
         startActivity(intent);
         finish();
         overridePendingTransition(android.R.anim.fade_in,android.R.anim.fade_out);
@@ -243,7 +261,6 @@ public class RegistActivity extends Activity {
     class DuplicateValidator extends Validator {
         public DuplicateValidator() {
             super("중복된 메일이 있습니다.");
-
         }
 
         @Override
@@ -262,7 +279,6 @@ public class RegistActivity extends Activity {
     class SameAccountValidator extends Validator {
         public SameAccountValidator() {
             super("현재 휴대폰과 같은 계정 입니다.");
-
         }
 
         @Override

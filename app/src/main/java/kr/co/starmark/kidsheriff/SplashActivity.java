@@ -155,6 +155,7 @@ public class SplashActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        LocationUploadService.startUploadService(this);
         setContentView(R.layout.activity_splash);
         ButterKnife.inject(this);
         context = getApplicationContext();

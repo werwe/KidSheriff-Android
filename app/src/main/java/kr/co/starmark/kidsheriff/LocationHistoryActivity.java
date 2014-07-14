@@ -119,7 +119,6 @@ public class LocationHistoryActivity extends FragmentActivity
                 mLocations = result.getList();
                 if(result.getList().size() == 0)
                 {
-
                     removePolyLine();
                     removeCurrentCircle();
                     hideControlPanel();

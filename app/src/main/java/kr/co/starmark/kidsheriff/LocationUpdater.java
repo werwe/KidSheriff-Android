@@ -18,6 +18,13 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
+
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+
+import java.io.StringReader;
 
 import kr.co.starmark.kidsheriff.request.GsonRequest;
 import kr.co.starmark.kidsheriff.request.LinkRequestData;
@@ -32,7 +39,7 @@ public class LocationUpdater implements
         LocationListener
 {
 
-    public static final String TAG = "LocationUpdate";
+    public static final String TAG = "LocationUpdater";
     private Context mContext;
     private LocationClient mLocationClient = null;
 
@@ -44,7 +51,7 @@ public class LocationUpdater implements
     private static final long FASTEST_INTERVAL =
             MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
     LocationRequest mLocationRequest;
-    boolean mUpdatesRequested;
+    boolean mUpdatesRequested = true;
 
     public LocationUpdater(Context context) {
         mContext = context;
@@ -58,11 +65,13 @@ public class LocationUpdater implements
 
     public void connect()
     {
+        Log.d(TAG,"connect");
         mLocationClient.connect();
     }
 
     public void disconnect()
     {
+        Log.d(TAG,"disconnect");
         // If the client is connected
         if (mLocationClient.isConnected()) {
             /*
@@ -87,6 +96,7 @@ public class LocationUpdater implements
     public void requestLocationUpdates()
     {
         if (mUpdatesRequested) {
+            Log.d(TAG,"requestLocationUpdates");
             mLocationClient.requestLocationUpdates(mLocationRequest, this);
         }
     }
@@ -111,7 +121,11 @@ public class LocationUpdater implements
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.d(TAG,"onLocationChanged");
 
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        String currentTime = DateTime.now().toString(fmt);
+        uploadLocation(new kr.co.starmark.kidsheriff.request.Location(currentTime,location.getLatitude(),location.getLongitude()));
     }
 
     private void uploadLocation(kr.co.starmark.kidsheriff.request.Location location)
@@ -121,14 +135,14 @@ public class LocationUpdater implements
         {
             @Override
             public void onResponse(String result) {
-                Log.d(TAG, result);
+                Log.d(TAG, "result:"+ result);
             }
         };
 
         Response.ErrorListener errorCallback = new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Log.d(TAG, volleyError.getMessage());
+                Log.d(TAG, "volley error:" +  volleyError.getMessage());
             }
         };
 
@@ -137,10 +151,10 @@ public class LocationUpdater implements
         String defaultAccount = pref.loadDefaultAccount();
         LocationUploadRequestData data = new LocationUploadRequestData();
         data.setUserId(defaultAccount);
-        data.setLoc(new kr.co.starmark.kidsheriff.request.Location(location.getDate(),location.getLat(),location.getLng()));
+        data.setLoc(location);
 
         Gson gson = new Gson();
-        gson.toJson(data).toString();
+        Log.d(TAG, gson.toJson(data).toString());
         requestQueue.add(
                 new GsonRequest<String>(
                         Request.Method.POST,
