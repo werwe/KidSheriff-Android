@@ -11,6 +11,7 @@ public class SharedPref {
 
     private static final String PREF_NAME = "KidSheriff-pref";
     public static final String DEFAULT_ACCOUNT = "DEFAULT_ACCOUNT";
+    public static final String CHILD_OR_PARENT = "child_or_parent";
 
     private static SharedPref mInstance = null;
 
@@ -38,4 +39,28 @@ public class SharedPref {
     {
         return mPref.getString(DEFAULT_ACCOUNT,null);
     }
+
+
+    /**
+     *
+     * @param childOrParent allow "child" or "parent" string
+     * @return
+     */
+    public boolean saveChildOrParent(String childOrParent)
+    {
+        if(childOrParent.equals("child") || childOrParent.equals("parent"))
+        {
+            SharedPreferences.Editor edidtor = mPref.edit();
+            edidtor.putString(CHILD_OR_PARENT, childOrParent);
+            return edidtor.commit();
+        }
+        else {
+            throw new IllegalArgumentException("your argument is " + childOrParent);
+        }
+    }
+    public String loadChildOrParent() {
+        return mPref.getString(CHILD_OR_PARENT, "child");
+    }
+
+
 }

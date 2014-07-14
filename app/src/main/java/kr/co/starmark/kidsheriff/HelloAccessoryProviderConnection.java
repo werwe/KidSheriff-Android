@@ -1,6 +1,7 @@
 package kr.co.starmark.kidsheriff;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -36,33 +37,9 @@ public class HelloAccessoryProviderConnection extends SASocket {
     @Override
     public void onReceive(int channelId, byte[] data) {
         Log.d(TAG, "onReceive");
-
-        Time time = new Time();
-
-        time.set(System.currentTimeMillis());
-
-        String timeStr = " " + String.valueOf(time.minute) + ":"
-                + String.valueOf(time.second);
-
-        String strToUpdateUI = new String(data);
-
-        final String message = strToUpdateUI.concat(timeStr);
-
-        final HelloAccessoryProviderConnection uHandler = mConnectionsMap.get(Integer
-                .parseInt(String.valueOf(mConnectionId)));
-        if (uHandler == null) {
-            Log.e(TAG, "Error, can not get HelloAccessoryProviderConnection handler");
-            return;
-        }
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    uHandler.send(HELLOACCESSORY_CHANNEL_ID, message.getBytes());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        //위치 전송 서비스 를 시작
+        Intent service = new Intent(mContext, LocationUploadService.class);
+        mContext.startService(service);
     }
 
     @Override
@@ -83,5 +60,9 @@ public class HelloAccessoryProviderConnection extends SASocket {
     }
     public int getConnectionId() {
         return this.mConnectionId;
+    }
+
+    public void setContext(Context context) {
+        this.mContext = context;
     }
 }
