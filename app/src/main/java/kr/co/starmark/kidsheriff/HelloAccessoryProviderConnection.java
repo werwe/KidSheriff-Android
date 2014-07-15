@@ -10,9 +10,15 @@ import android.util.Base64;
 import android.util.Log;
 
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 import com.samsung.android.sdk.accessory.SASocket;
 
+import org.apache.http.Header;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -46,15 +52,18 @@ public class HelloAccessoryProviderConnection extends SASocket {
         Log.d(TAG, "onReceive");
         if(data.length == 0) {
             //위치 전송 서비스 를 시작
+            //&& push notification
             Log.d(TAG, mConnectionId + " / " + channelId);
             Intent service = new Intent(mContext, LocationUploadService.class);
             mContext.startService(service);
+
         }else {
 
             String s = new String(data).split(",")[1];
             Log.d(TAG, "data:" + s);
 
             byte[] decode = Base64.decode(s, Base64.DEFAULT);
+
             BitmapFactory.Options options = new BitmapFactory.Options();
             Bitmap bitmap = BitmapFactory.decodeByteArray(decode, 0, decode.length);
 
@@ -63,16 +72,38 @@ public class HelloAccessoryProviderConnection extends SASocket {
             if(!outputDir.exists())
                 outputDir.mkdirs();
 
-
             File outputFile = null;
             try {
                 outputFile = File.createTempFile("temp001", ".png", outputDir);
                 final FileOutputStream filestream = new FileOutputStream(outputFile);
                 bitmap.compress(Bitmap.CompressFormat.PNG, 0, filestream);
+                UploadImage(outputFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void UploadImage(File file) {
+        AsyncHttpClient client = new AsyncHttpClient();
+        RequestParams params = new RequestParams();
+        try {
+            String emailId = SharedPref.get(mContext).loadDefaultAccount();
+
+            params.put("emailid", emailId);
+            params.put("image", file);
+        } catch(FileNotFoundException e) {}
+        client.post(mContext,"http://kid-sheriff-001.appspot.com/apis/uploadImg",params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Log.d(TAG, "Upload onSuccess:"+statusCode);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                Log.d(TAG, "Upload onFailure:"+statusCode);
+            }
+        });
     }
 
     @Override
