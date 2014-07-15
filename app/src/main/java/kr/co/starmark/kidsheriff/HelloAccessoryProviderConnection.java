@@ -44,23 +44,31 @@ public class HelloAccessoryProviderConnection extends SASocket {
     @Override
     public void onReceive(int channelId, byte[] data) {
         Log.d(TAG, "onReceive");
-        if(channelId == HELP_CHANNEL_ID) {
+        if(data.length == 0) {
             //위치 전송 서비스 를 시작
             Log.d(TAG, mConnectionId + " / " + channelId);
             Intent service = new Intent(mContext, LocationUploadService.class);
             mContext.startService(service);
-        }else if(channelId == CAPTURE_CHANNEL_ID) {
-            byte[] decode = Base64.decode(data, Base64.DEFAULT);
+        }else {
+
+            String s = new String(data).split(",")[1];
+            Log.d(TAG, "data:" + s);
+
+            byte[] decode = Base64.decode(s, Base64.DEFAULT);
             BitmapFactory.Options options = new BitmapFactory.Options();
             Bitmap bitmap = BitmapFactory.decodeByteArray(decode, 0, decode.length);
 
-            File outputDir = mContext.getCacheDir(); // context being the Activity pointer
+            File outputDir = mContext.getExternalCacheDir(); // context being the Activity pointer
             Log.d(TAG, "out put dir:" + outputDir.getAbsolutePath());
+            if(!outputDir.exists())
+                outputDir.mkdirs();
+
+
             File outputFile = null;
             try {
-                outputFile = File.createTempFile("temp001", "temp", outputDir);
+                outputFile = File.createTempFile("temp001", ".png", outputDir);
                 final FileOutputStream filestream = new FileOutputStream(outputFile);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 0, filestream);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 0, filestream);
             } catch (IOException e) {
                 e.printStackTrace();
             }
