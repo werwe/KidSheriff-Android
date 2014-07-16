@@ -28,6 +28,7 @@
         android:required="true" />
 
     <application
+        android:name="kr.co.starmark.kidsheriff.MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"

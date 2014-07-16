@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -17,9 +18,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import kr.co.starmark.kidsheriff.request.UserDataResult;
+import kr.co.starmark.kidsheriff.resource.ImageStoreInfo;
 
 
 public class NavigationDrawerFragment extends Fragment {
@@ -43,6 +49,8 @@ public class NavigationDrawerFragment extends Fragment {
 
     private UserDataResult mUserData;
 
+    private ViewPager mViewPager;
+    private PhotoPagerAdapter mPagerAdapter;
     public NavigationDrawerFragment() {
     }
 
@@ -57,6 +65,7 @@ public class NavigationDrawerFragment extends Fragment {
             mFromSavedInstanceState = true;
         }
         selectItem(mCurrentSelectedPosition);
+
     }
 
     @Override
@@ -72,6 +81,9 @@ public class NavigationDrawerFragment extends Fragment {
                 R.layout.fragment_navigation_drawer, container, false);
 
         ButterKnife.inject(this, drawerView);
+        TextView textview  = ButterKnife.findById(drawerView,R.id.my_account);
+        textview.setText(SharedPref.get(getActivity()).loadDefaultAccount());
+        mViewPager = ButterKnife.findById(drawerView,R.id.recent_photo_pager);
         mDrawerListView = (ListView) drawerView.findViewById(R.id.account_list);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -79,6 +91,8 @@ public class NavigationDrawerFragment extends Fragment {
                 selectItem(position);
             }
         });
+        mPagerAdapter = new PhotoPagerAdapter(getActivity());
+        mViewPager.setAdapter(mPagerAdapter);
         return drawerView;
     }
 
@@ -155,7 +169,6 @@ public class NavigationDrawerFragment extends Fragment {
                 mDrawerToggle.syncState();
             }
         });
-
         mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
 
@@ -213,7 +226,6 @@ public class NavigationDrawerFragment extends Fragment {
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -222,6 +234,12 @@ public class NavigationDrawerFragment extends Fragment {
             return "";
 
         return mUserData.getLinkedAccounts().get(mCurrentSelectedPosition);
+    }
+
+    public void updatePhoto(List<ImageStoreInfo> list) {
+        if(list == null)
+            list = new ArrayList<ImageStoreInfo>();
+        mPagerAdapter.setData(list);
     }
 
     public static interface NavigationDrawerCallbacks {

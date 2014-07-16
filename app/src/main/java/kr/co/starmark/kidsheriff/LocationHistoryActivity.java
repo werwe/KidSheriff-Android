@@ -38,7 +38,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.TextHttpResponseHandler;
 
+import org.apache.http.Header;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Array;
@@ -55,6 +59,7 @@ import kr.co.starmark.kidsheriff.request.GsonRequest;
 import kr.co.starmark.kidsheriff.request.HistoryRequestData;
 import kr.co.starmark.kidsheriff.request.LocationHistoryResult;
 import kr.co.starmark.kidsheriff.request.UserDataResult;
+import kr.co.starmark.kidsheriff.resource.ImageStoreInfoList;
 
 public class LocationHistoryActivity extends FragmentActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -103,6 +108,7 @@ public class LocationHistoryActivity extends FragmentActivity
         try {
             initilizeMap();
             updateLocationHistory();
+            updateImageHistory();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -165,6 +171,26 @@ public class LocationHistoryActivity extends FragmentActivity
                         errorCallback
                 )
         );
+    }
+
+    private void updateImageHistory()
+    {
+        AsyncHttpClient client = new AsyncHttpClient();
+        String url = "http://kid-sheriff-001.appspot.com/apis/getImages/name="+mNavigationDrawerFragment.getSelectedAccount();
+        client.get(this,url, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Log.d(TAG, "status Code:" + statusCode + "/"+ responseString,throwable);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                Log.d(TAG, "status Code:" + statusCode + "/"+ responseString);
+                Gson gson = new Gson();
+                ImageStoreInfoList list = gson.fromJson(responseString, ImageStoreInfoList.class);
+                mNavigationDrawerFragment.updatePhoto(list.getList());
+            }
+        });
     }
 
     private void sortList() {
@@ -347,6 +373,7 @@ public class LocationHistoryActivity extends FragmentActivity
 
     public void onSectionAttached(int number) {
         updateLocationHistory();
+        updateImageHistory();
     }
 
     public void setActionBar() {
