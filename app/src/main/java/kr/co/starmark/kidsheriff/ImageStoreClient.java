@@ -66,7 +66,7 @@ public class ImageStoreClient {
         });
     }
 
-    private void upload(File file , FileUrl uploadUrl)
+    private void upload(final File file , FileUrl uploadUrl)
     {
         //parameters
         //String emailId = req.getParameter("emailId");
@@ -94,6 +94,8 @@ public class ImageStoreClient {
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 Log.d("uploadFile", "onFailure: statusCode: " + statusCode + "/" + responseString);
                 Log.d("uploadFile","error",throwable);
+                if(file.exists())
+                    file.delete();
             }
 
             @Override
@@ -104,6 +106,8 @@ public class ImageStoreClient {
                 FileMeta meta = entity.getFiles().get(0);
                 Log.d(TAG, "download Url:" + "http://kid-sheriff-001.appspot.com"+meta.getUrl());
                 //downloadFile(meta.getFiles().get(0));
+                if(file.exists())
+                    file.delete();
             }
         });
     }
