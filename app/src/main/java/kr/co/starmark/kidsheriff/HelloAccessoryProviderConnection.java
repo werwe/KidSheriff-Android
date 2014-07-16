@@ -56,7 +56,6 @@ public class HelloAccessoryProviderConnection extends SASocket {
             Log.d(TAG, mConnectionId + " / " + channelId);
             Intent service = new Intent(mContext, LocationUploadService.class);
             mContext.startService(service);
-
         }else {
 
             String s = new String(data).split(",")[1];
@@ -74,7 +73,7 @@ public class HelloAccessoryProviderConnection extends SASocket {
 
             File outputFile = null;
             try {
-                outputFile = File.createTempFile("molca"+System.currentTimeMillis(), ".png", outputDir);
+                outputFile = File.createTempFile("molca_"+System.currentTimeMillis(), ".png", outputDir);
                 final FileOutputStream filestream = new FileOutputStream(outputFile);
                 bitmap.compress(Bitmap.CompressFormat.PNG, 0, filestream);
                 UploadImage(outputFile);
