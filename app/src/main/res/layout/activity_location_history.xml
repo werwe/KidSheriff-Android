@@ -31,37 +31,38 @@
                 android:id="@+id/map_nav_prev"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=""
+                android:background="@drawable/btn_prev_location" />
+
+            <Button
+                android:id="@+id/map_nav_recent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="24dp"
+                android:background="@drawable/btn_recent_location"
                 />
 
             <Button
                 android:id="@+id/map_nav_next"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=">"/>
-
-            <Button
-                android:id="@+id/map_nav_recent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/recent_location" />
+                android:layout_marginLeft="24dp"
+                android:background="@drawable/btn_next_location" />
 
         </LinearLayout>
 
         <LinearLayout
-            android:visibility="gone"
             android:id="@+id/progress_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <ProgressBar
                 android:id="@+id/progress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:indeterminate="false"
-            />
+                android:indeterminate="false" />
 
             <TextView
                 android:id="@+id/progress_status"
