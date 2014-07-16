@@ -2,11 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="kr.co.starmark.kidsheriff.LocationHistoryActivity" >
     <item android:id="@+id/action_refresh"
-        android:icon="@drawable/ic_action_refresh"
-        android:title="@string/action_example"
+        android:icon="@drawable/sync_icon"
+        android:title="@string/action_sync"
         android:showAsAction="always" />
     <item android:id="@+id/action_settings"
-        android:icon="@drawable/ic_action_settings"
+        android:icon="@drawable/setting_icon"
         android:title="@string/action_settings"
         android:showAsAction="always" />
 </menu>

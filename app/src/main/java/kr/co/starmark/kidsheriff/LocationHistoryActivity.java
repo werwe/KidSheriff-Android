@@ -29,6 +29,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -88,15 +89,14 @@ public class LocationHistoryActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_history);
         ButterKnife.inject(this);
+        setActionBar();
 
         mUserData = getIntent().getParcelableExtra("userinfo");
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
 
         mNavigationDrawerFragment.setUserData(mUserData);
         mNavigationDrawerFragment.setUpListView();
-        // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
@@ -194,8 +194,9 @@ public class LocationHistoryActivity extends FragmentActivity
     private void displayMarker(kr.co.starmark.kidsheriff.request.Location loc,String msg)
     {
         mCurrentMarker = mGoogleMap.addMarker(new MarkerOptions()
-            .position(new LatLng(loc.getLat(), loc.getLng()))
-            .title(msg));
+                .position(new LatLng(loc.getLat(), loc.getLng()))
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.pin))
+                .title(msg));
     }
 
     private void removeMarker()
@@ -213,8 +214,8 @@ public class LocationHistoryActivity extends FragmentActivity
             lists.add(new LatLng(loc.getLat(),loc.getLng()));
 
         PolylineOptions options = new PolylineOptions();
-        options.color(Color.parseColor("#99CC00"));
-        options.width(4f);
+        options.color(Color.parseColor("#f0be21"));
+        options.width(6f);
         options.geodesic(true);
         options.addAll(lists);
         options.zIndex(0f);
@@ -345,29 +346,20 @@ public class LocationHistoryActivity extends FragmentActivity
     }
 
     public void onSectionAttached(int number) {
-        if(mUserData.getLinkedAccounts().size() == 0)
-            return;
-        Log.d(TAG,"onsectionAttaced: number " + number);
-        mTitle = mUserData.getLinkedAccounts().get(number-1);
         updateLocationHistory();
     }
 
-    public void restoreActionBar() {
+    public void setActionBar() {
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mNavigationDrawerFragment.getSelectedAccount());
-        //actionBar.setTitle(mTitle);
+        actionBar.setTitle(R.string.app_name);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        //if (!mNavigationDrawerFragment.isDrawerOpen()) {
             getMenuInflater().inflate(R.menu.location_history, menu);
-            restoreActionBar();
-        //    return true;
-        //}
-        return super.onCreateOptionsMenu(menu);
+       return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -379,7 +371,7 @@ public class LocationHistoryActivity extends FragmentActivity
             return true;
         }
         if (id == R.id.action_settings) {
-            startSettingActivity();
+            //startSettingActivity();
             return true;
         }
         return super.onOptionsItemSelected(item);

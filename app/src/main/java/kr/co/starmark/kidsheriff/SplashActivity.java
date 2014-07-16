@@ -15,6 +15,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
@@ -35,6 +36,7 @@ import com.nineoldandroids.view.ViewHelper;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
+
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -60,9 +62,6 @@ public class SplashActivity extends Activity {
 
     String regid;
 
-    @InjectView(R.id.logo)
-    View mLogo;
-
     private ViewPropertyAnimator mLogoAnimator = null;
     private Runnable mStartAct = new Runnable() {
         @Override
@@ -70,6 +69,8 @@ public class SplashActivity extends Activity {
             checkDefaultAccount();
         }
     };
+
+    private Handler mHandler = new Handler();
 
     private void checkDefaultAccount() {
         SharedPref pref = SharedPref.get(this);
@@ -170,7 +171,8 @@ public class SplashActivity extends Activity {
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
         }
-        ShowLogo();
+        //ShowLogo();
+        mHandler.postDelayed(mStartAct, 2000);
     }
 
     @Override
@@ -179,28 +181,29 @@ public class SplashActivity extends Activity {
         checkPlayServices();
     }
 
-    private void ShowLogo() {
-        mLogo.post(new Runnable() {
-            @Override
-            public void run() {
-                float height = mLogo.getHeight();
-                ViewHelper.setY(mLogo, height / 2 + mLogo.getY());
-                mLogoAnimator = mLogo.animate().translationY(0).alpha(1).setDuration(1000).setInterpolator(new DecelerateInterpolator(1f));
-                mLogoAnimator.setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        mStartAct.run();
-                    }
-                });
-            }
-        });
-    }
+//    private void ShowLogo() {
+//        mLogo.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                float height = mLogo.getHeight();
+//                ViewHelper.setY(mLogo, height / 2 + mLogo.getY());
+//                mLogoAnimator = mLogo.animate().translationY(0).alpha(1).setDuration(1000).setInterpolator(new DecelerateInterpolator(1f));
+//                mLogoAnimator.setListener(new AnimatorListenerAdapter() {
+//                    @Override
+//                    public void onAnimationEnd(Animator animation) {
+//                        mStartAct.run();
+//                    }
+//                });
+//            }
+//        });
+//    }
 
     @Override
     public void onBackPressed() {
-        mLogo.removeCallbacks(mStartAct);
-        mLogoAnimator.setListener(null);
-        mLogoAnimator.cancel();
+//        mLogo.removeCallbacks(mStartAct);
+//        mLogoAnimator.setListener(null);
+//        mLogoAnimator.cancel();
+        mHandler.removeCallbacks(mStartAct);
         super.onBackPressed();
     }
 

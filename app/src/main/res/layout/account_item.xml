@@ -4,26 +4,36 @@
     xmlns:whatever="http://schemas.android.com/apk/res-auto"
     android:id="@+id/account_item"
     android:layout_width="match_parent"
+    android:gravity="bottom"
     android:layout_height="wrap_content">
 
     <Button
         android:id="@+id/btn_add"
+        android:layout_margin="4dp"
+        android:background="@drawable/btn_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_weight="1"
-        android:text="+" />
+        android:layout_marginLeft="16dp"
+
+        />
 
     <com.andreabaccega.widget.FormEditText
+
+        android:textSize="23dp"
+        android:gravity="bottom|left"
+        android:background="@drawable/input_field"
         android:id="@+id/account_field"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignBottom="@id/btn_add"
-        android:layout_alignTop="@id/btn_add"
-        android:layout_toLeftOf="@id/btn_add"
+        android:layout_height="44dp"
         android:inputType="textEmailAddress"
         whatever:emptyErrorString="비어 있습니다. 이메일을 입력해 주세요."
         whatever:testErrorString="이메일형식이 아닙니다."
-        whatever:testType="email" />
+        whatever:testType="email"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@id/btn_add"
+        />
 
 </RelativeLayout>

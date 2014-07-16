@@ -21,42 +21,91 @@
 
     <!--android:layout_below="@id/user_account"-->
 
+    <ImageView
+        android:id="@+id/step1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/step_1_text" />
+
+
     <RadioGroup
         android:id="@+id/radio_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/step1"
         android:layout_marginBottom="8dp"
         android:checkedButton="@+id/parent"
-        android:orientation="vertical">
+        android:gravity="center"
+        android:orientation="horizontal">
 
-        <RadioButton
-            android:id="@id/parent"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="부모 사용자 입니다." />
+            android:orientation="vertical">
 
-        <RadioButton
-            android:id="@+id/child"
+            <ImageView
+                android:id="@+id/icon_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/parent_icon_on" />
+
+            <RadioButton
+                android:id="@id/parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:button="@drawable/radio"
+                android:padding="8dp"
+                android:text="보호자입니다." />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="아이 사용자 입니다." />
+            android:layout_marginLeft="48dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/icon_child"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/child_icon_off" />
+
+            <RadioButton
+                android:id="@+id/child"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:button="@drawable/radio"
+                android:padding="8dp"
+                android:text="어린이입니다." />
+        </LinearLayout>
     </RadioGroup>
 
-    <TextView
+    <ImageView
+        android:id="@+id/step2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@id/radio_group"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/step_2_text" />
+
+    <TextView
         android:id="@+id/text_regist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/step2"
         android:layout_gravity="center_horizontal"
-        android:text="아이 휴대폰의 계정을 입력해 주세요"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large" />
+        android:text="보호자 휴대폰의 계정을 입력해주세요."
+        android:textSize="18dp" />
 
     <Button
         android:id="@+id/btn_regist"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_alignParentBottom="true"
-        android:text=" 등  록 " />
+        android:background="@drawable/btn_regist" />
 
     <ScrollView
         android:id="@+id/account_scrollview"

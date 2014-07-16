@@ -14,7 +14,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -55,11 +57,15 @@ public class RegistActivity extends Activity {
     @InjectView(R.id.account_container)
     LinearLayout mAccoutListContainer;
 
-    //@InjectView(R.id.user_account)
-    //TextView mMyAccount;
+    @InjectView(R.id.child)
+    RadioButton mChildButton;
+    @InjectView(R.id.parent)
+    RadioButton mParentButton;
 
-    @InjectView(R.id.radio_group)
-    RadioGroup mRadioGroup;
+    @InjectView(R.id.icon_child)
+    ImageView mIconChild;
+    @InjectView(R.id.icon_parent)
+    ImageView mIconParent;
 
     @InjectView(R.id.text_regist)
     TextView mTextView;
@@ -67,28 +73,36 @@ public class RegistActivity extends Activity {
     ArrayList<View> mChild = new ArrayList<View>(20);
 
     private UserDataResult mUserData;
+
+    private int mCheckId = R.id.parent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_regist);
         ButterKnife.inject(this);
         mUserData = getIntent().getParcelableExtra("userinfo");
-        mRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+        mChildButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                Log.d(TAG,"onCheckChangeListener:"+i);
-                if(i == R.id.parent)
-                    mTextView.setText("아이 휴대폰의 계정을 입력해 주세요.");
-                else if(i == R.id.child)
-                    mTextView.setText("부모님 휴대폰의 계정을 입력해 주세요.");
+            public void onClick(View view) {
+                mParentButton.setChecked(false);
+                mIconParent.setImageResource(R.drawable.parent_icon_off);
+                mIconChild.setImageResource(R.drawable.child_icon_on);
+                mTextView.setText("보호자 휴대폰의 계정을 입력해 주세요.");
+                mCheckId = R.id.parent;
             }
         });
-        setMyAccount();
+        mParentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mChildButton.setChecked(false);
+                mIconParent.setImageResource(R.drawable.parent_icon_on);
+                mIconChild.setImageResource(R.drawable.child_icon_off);
+                mTextView.setText("아이 휴대폰의 계정을 입력해 주세요.");
+                mCheckId = R.id.child;
+            }
+        });
         addAccountField();
-    }
-
-    private void setMyAccount() {
-       //mMyAccount.setText(mUserData.getEmail());
     }
 
     @OnClick(R.id.btn_regist)
@@ -145,7 +159,7 @@ public class RegistActivity extends Activity {
         data.linkedAccounts = emailList;
         data.pushid = getRegistrationId(getApplicationContext());
         Log.d("pushId", data.pushid);
-        data.whichSide = mRadioGroup.getCheckedRadioButtonId() == R.id.parent ? 2 : 1 ;
+        data.whichSide = mCheckId == R.id.parent ? 2 : 1 ;
 
         mUserData.setLinkedAccounts(data.linkedAccounts);
         mUserData.setWhichSide(data.whichSide);
@@ -220,14 +234,13 @@ public class RegistActivity extends Activity {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View btn) {
-                if (addButton.getText().equals("+")) {
+                if (accountEditText.isEnabled()) {
                     accountEditText.addValidator(new DuplicateValidator());
                     if (!accountEditText.testValidity())
                         return;
                     accountEditText.setEnabled(false);
-                    addButton.setText("-");
                     addAccountField();
-                } else if (addButton.getText().equals("-")) {
+                } else {
                     removeAccountField(view);
                 }
             }

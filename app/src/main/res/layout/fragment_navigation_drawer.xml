@@ -1,37 +1,87 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#ff3e322a">
 
-    <ImageView
+    <android.support.v4.view.ViewPager
         android:id="@+id/recent_photo"
         android:layout_width="match_parent"
         android:layout_height="@dimen/navigation_drawer_width"
-        android:scaleType="centerCrop"
-        android:src="@drawable/testimg"
         android:layout_alignParentBottom="true"
-        />
-    <TextView
-        android:id="@+id/recent_photo_title"
-        android:background="#F0F0F0"
+        android:scaleType="centerCrop" />
+
+    <RelativeLayout
+        android:id="@+id/pager_title_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_above="@id/recent_photo"
-        android:text="최근사진"
+        android:background="@drawable/pager_title_bg"
+        android:gravity="center_vertical"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp">
+
+
+        <TextView
+            android:id="@+id/recent_photo_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text="최근사진"
+            android:textColor="#f4f3f1"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/recent_photo_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/recent_photo_title"
+            android:layout_alignParentRight="true"
+            android:text="최근사진"
+            android:textColor="#f4f3f1"
+            android:textSize="15dp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/account_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <View
-        android:id="@+id/seperate_line"
-        android:layout_above="@id/recent_photo_title"
+        android:layout_height="wrap_content"
+        android:background="@drawable/account_bg"
+        android:gravity="center_vertical"
+        android:paddingLeft="24dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MyAccount"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large" />
+
+    </LinearLayout>
+
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"/>
-    <ListView
-        android:layout_above="@id/seperate_line"
-        android:id="@+id/account_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#cccc"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        tools:context="kr.co.starmark.kidsheriff.NavigationDrawerFragment" />
+        android:layout_height="wrap_content"
+        android:layout_above="@id/pager_title_container"
+        android:layout_below="@id/account_container">
+
+        <ListView
+            android:id="@+id/account_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ff3e322a"
+            android:choiceMode="singleChoice"
+            android:divider="@drawable/list_divider"
+            android:dividerHeight="0dp"
+            tools:context="kr.co.starmark.kidsheriff.NavigationDrawerFragment" />
+
+        <kr.co.starmark.kidsheriff.widget.DimImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:src="@drawable/btn_add_account"
+
+            />
+    </FrameLayout>
+
 </RelativeLayout>
