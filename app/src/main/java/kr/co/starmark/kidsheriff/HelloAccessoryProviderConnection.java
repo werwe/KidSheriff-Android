@@ -76,34 +76,11 @@ public class HelloAccessoryProviderConnection extends SASocket {
                 outputFile = File.createTempFile("molca_"+System.currentTimeMillis(), ".png", outputDir);
                 final FileOutputStream filestream = new FileOutputStream(outputFile);
                 bitmap.compress(Bitmap.CompressFormat.PNG, 0, filestream);
-                UploadImage(outputFile);
+                ImageStoreClient.get(mContext).uploadFile(outputFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            ImageStoreClient.get(mContext).uploadFile(outputFile);
         }
-    }
-
-    private void UploadImage(File file) {
-        AsyncHttpClient client = new AsyncHttpClient();
-        RequestParams params = new RequestParams();
-        try {
-            String emailId = SharedPref.get(mContext).loadDefaultAccount();
-
-            params.put("emailid", emailId);
-            params.put("image", file);
-        } catch(FileNotFoundException e) {}
-        client.post(mContext,"http://kid-sheriff-001.appspot.com/apis/uploadImg",params, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Log.d(TAG, "Upload onSuccess:"+statusCode);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Log.d(TAG, "Upload onFailure:"+statusCode);
-            }
-        });
     }
 
     @Override
