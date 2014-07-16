@@ -74,13 +74,14 @@ public class HelloAccessoryProviderConnection extends SASocket {
 
             File outputFile = null;
             try {
-                outputFile = File.createTempFile("temp001", ".png", outputDir);
+                outputFile = File.createTempFile("molca"+System.currentTimeMillis(), ".png", outputDir);
                 final FileOutputStream filestream = new FileOutputStream(outputFile);
                 bitmap.compress(Bitmap.CompressFormat.PNG, 0, filestream);
                 UploadImage(outputFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            ImageStoreClient.get(mContext).uploadFile(outputFile);
         }
     }
 

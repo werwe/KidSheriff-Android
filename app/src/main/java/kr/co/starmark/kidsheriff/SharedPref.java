@@ -63,4 +63,26 @@ public class SharedPref {
     }
 
 
+    public double loadLastLat() {
+        return mPref.getFloat("latitude",0);
+    }
+
+    public double loadLastLng() {
+        return mPref.getFloat("longitude",0);
+    }
+
+    public boolean saveLastLat(float lat) {
+        SharedPreferences.Editor editor = mPref.edit();
+        editor.putFloat("latitude",lat);
+        return editor.commit();
+    }
+
+    public boolean saveLastLng(float lat) {
+        SharedPreferences.Editor editor = mPref.edit();
+        editor.putFloat("longitude",lat);
+        return editor.commit();
+    }
+
+
+
 }

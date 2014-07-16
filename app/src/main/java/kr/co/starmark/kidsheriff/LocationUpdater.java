@@ -44,10 +44,10 @@ public class LocationUpdater implements
     private LocationClient mLocationClient = null;
 
     private static final int MILLISECONDS_PER_SECOND = 1000;
-    public static final int UPDATE_INTERVAL_IN_SECONDS = 10;
+    public static final int UPDATE_INTERVAL_IN_SECONDS = 900;
     private static final long UPDATE_INTERVAL =
             MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
-    private static final int FASTEST_INTERVAL_IN_SECONDS = 1;
+    private static final int FASTEST_INTERVAL_IN_SECONDS = 600;
     private static final long FASTEST_INTERVAL =
             MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
     LocationRequest mLocationRequest;
@@ -128,26 +128,28 @@ public class LocationUpdater implements
         uploadLocation(new kr.co.starmark.kidsheriff.request.Location(currentTime,location.getLatitude(),location.getLongitude()));
     }
 
-    private void uploadLocation(kr.co.starmark.kidsheriff.request.Location location)
-    {
+    private void uploadLocation(kr.co.starmark.kidsheriff.request.Location location) {
+
+        SharedPref pref = SharedPref.get(mContext);
+        pref.saveLastLat((float) location.getLat());
+        pref.saveLastLng((float) location.getLng());
+
         Log.d(TAG, "uplaod location:" + location.toString());
-        Response.Listener<String> response = new Response.Listener<String>()
-        {
+        Response.Listener<String> response = new Response.Listener<String>() {
             @Override
             public void onResponse(String result) {
-                Log.d(TAG, "result:"+ result);
+                Log.d(TAG, "result:" + result);
             }
         };
 
         Response.ErrorListener errorCallback = new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Log.d(TAG, "volley error:" +  volleyError.getMessage());
+                Log.d(TAG, "volley error:" + volleyError.getMessage());
             }
         };
 
         RequestQueue requestQueue = Volley.newRequestQueue(mContext);
-        SharedPref pref = SharedPref.get(mContext);
         String defaultAccount = pref.loadDefaultAccount();
         LocationUploadRequestData data = new LocationUploadRequestData();
         data.setUserId(defaultAccount);
