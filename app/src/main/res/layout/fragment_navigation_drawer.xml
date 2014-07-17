@@ -4,18 +4,25 @@
     android:layout_height="match_parent"
     android:background="#ff3e322a">
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/recent_photo_pager"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/navigation_drawer_width"
+    <com.android.volley.toolbox.NetworkImageView
+        android:id="@+id/recent_photo"
         android:layout_alignParentBottom="true"
-        android:scaleType="centerCrop" />
+        android:layout_width="match_parent"
+        android:scaleType="centerCrop"
+        android:layout_height="@dimen/navigation_drawer_width"
+        />
+    <!--<android.support.v4.view.ViewPager-->
+        <!--android:id="@+id/recent_photo_pager"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="@dimen/navigation_drawer_width"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:scaleType="centerCrop" />-->
 
     <RelativeLayout
         android:id="@+id/pager_title_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/recent_photo_pager"
+        android:layout_above="@id/recent_photo"
         android:background="@drawable/pager_title_bg"
         android:gravity="center_vertical"
         android:paddingLeft="8dp"
@@ -32,6 +39,7 @@
             android:textSize="20dp" />
 
         <TextView
+            android:visibility="gone"
             android:id="@+id/recent_photo_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -52,6 +60,7 @@
         android:orientation="horizontal">
 
         <TextView
+            android:textColor="#f4f3f1"
             android:id="@+id/my_account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -77,6 +86,7 @@
             tools:context="kr.co.starmark.kidsheriff.NavigationDrawerFragment" />
 
         <kr.co.starmark.kidsheriff.widget.DimImageButton
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|right"

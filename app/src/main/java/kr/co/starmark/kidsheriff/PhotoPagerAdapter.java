@@ -1,8 +1,11 @@
 package kr.co.starmark.kidsheriff;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Parcelable;
+import android.provider.ContactsContract;
 import android.support.v4.view.PagerAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,14 +21,17 @@ import kr.co.starmark.kidsheriff.resource.ImageStoreInfo;
 
 public class PhotoPagerAdapter extends PagerAdapter {
 
+    private static final String TAG = PhotoPagerAdapter.class.getName();
         private List<ImageStoreInfo> mMetaList;
         private LayoutInflater mInflater;
         private ImageLoader mImageLoader;
+        private Context mContext;
         public PhotoPagerAdapter(Context c){
             super();
             mInflater = LayoutInflater.from(c);
             mImageLoader = VolleySingleton.getInstance().getImageLoader();
             mMetaList = new ArrayList<ImageStoreInfo>();
+            mContext = c;
         }
 
         @Override
@@ -36,7 +42,10 @@ public class PhotoPagerAdapter extends PagerAdapter {
         @Override
         public Object instantiateItem(ViewGroup pager, int position) {
             NetworkImageView imgView = new NetworkImageView(pager.getContext());
+            imgView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) mContext.getResources().getDimension(R.dimen.navigation_drawer_width)));
             String url = "http://kid-sheriff-appspot.com/apis/file/" + mMetaList.get(position).getImgUrl();
+            imgView.setBackgroundColor(Color.RED);
+            Log.d(TAG,"Instantiateitem:"+ url);
             imgView.setImageUrl(url,mImageLoader);
             pager.addView(imgView, 0);
             return imgView;

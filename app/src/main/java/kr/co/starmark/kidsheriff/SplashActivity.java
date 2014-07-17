@@ -179,6 +179,8 @@ public class SplashActivity extends Activity {
     protected void onResume() {
         super.onResume();
         checkPlayServices();
+
+        Log.d(TAG,getRegistrationId(this));
     }
 
 //    private void ShowLogo() {

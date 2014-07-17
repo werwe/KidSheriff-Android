@@ -6,12 +6,13 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.android.volley.toolbox.NetworkImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,9 +51,8 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mUserLearnedDrawer;
 
     private UserDataResult mUserData;
+    private NetworkImageView mRecentPhoto;
 
-    private ViewPager mViewPager;
-    private PhotoPagerAdapter mPagerAdapter;
     public NavigationDrawerFragment() {
     }
 
@@ -59,13 +61,11 @@ public class NavigationDrawerFragment extends Fragment {
         super.onCreate(savedInstanceState);
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
-
         if (savedInstanceState != null) {
             mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
             mFromSavedInstanceState = true;
         }
         selectItem(mCurrentSelectedPosition);
-
     }
 
     @Override
@@ -83,7 +83,7 @@ public class NavigationDrawerFragment extends Fragment {
         ButterKnife.inject(this, drawerView);
         TextView textview  = ButterKnife.findById(drawerView,R.id.my_account);
         textview.setText(SharedPref.get(getActivity()).loadDefaultAccount());
-        mViewPager = ButterKnife.findById(drawerView,R.id.recent_photo_pager);
+        mRecentPhoto = ButterKnife.findById(drawerView,R.id.recent_photo);
         mDrawerListView = (ListView) drawerView.findViewById(R.id.account_list);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -91,15 +91,13 @@ public class NavigationDrawerFragment extends Fragment {
                 selectItem(position);
             }
         });
-        mPagerAdapter = new PhotoPagerAdapter(getActivity());
-        mViewPager.setAdapter(mPagerAdapter);
+
         return drawerView;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
     }
 
     public void setUserData(UserDataResult userData) {
@@ -236,10 +234,18 @@ public class NavigationDrawerFragment extends Fragment {
         return mUserData.getLinkedAccounts().get(mCurrentSelectedPosition);
     }
 
-    public void updatePhoto(List<ImageStoreInfo> list) {
-        if(list == null)
-            list = new ArrayList<ImageStoreInfo>();
-        mPagerAdapter.setData(list);
+    public void updatePhoto(List<ImageStoreInfo> list,int index) {
+        if(list != null && list.size() > 0)
+        {
+            mRecentPhoto.setImageUrl(null,null);
+            String url = "http://kid-sheriff-001.appspot.com/apis/file/" + list.get(index).getImgUrl();
+            System.out.println( url);
+            mRecentPhoto.setImageUrl(url,VolleySingleton.getInstance().getImageLoader());
+        }
+    }
+    public void updatePhoto(String url) {
+        mRecentPhoto.setImageUrl(null,null);
+        mRecentPhoto.setImageUrl("http://kid-sheriff-001.appspot.com/apis/file/"+url,VolleySingleton.getInstance().getImageLoader());
     }
 
     public static interface NavigationDrawerCallbacks {

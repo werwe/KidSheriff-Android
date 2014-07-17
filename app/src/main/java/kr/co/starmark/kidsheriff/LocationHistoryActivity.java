@@ -5,19 +5,25 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -29,6 +35,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -44,13 +51,19 @@ import com.loopj.android.http.TextHttpResponseHandler;
 
 import org.apache.http.Header;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -59,6 +72,7 @@ import kr.co.starmark.kidsheriff.request.GsonRequest;
 import kr.co.starmark.kidsheriff.request.HistoryRequestData;
 import kr.co.starmark.kidsheriff.request.LocationHistoryResult;
 import kr.co.starmark.kidsheriff.request.UserDataResult;
+import kr.co.starmark.kidsheriff.resource.ImageStoreInfo;
 import kr.co.starmark.kidsheriff.resource.ImageStoreInfoList;
 
 public class LocationHistoryActivity extends FragmentActivity
@@ -82,6 +96,8 @@ public class LocationHistoryActivity extends FragmentActivity
     @InjectView(R.id.location_controll_panel)
     View mControllPanel;
 
+    View mInfoWindow;
+
     private List<kr.co.starmark.kidsheriff.request.Location> mLocations = new ArrayList<kr.co.starmark.kidsheriff.request.Location>();
     private Polyline mCurrentPolyLine = null;
     private Circle mCurrentCircle = null;
@@ -89,22 +105,28 @@ public class LocationHistoryActivity extends FragmentActivity
     private int mLocationHead = 0;
     private int mStoredSection = 0;
 
+    HashMap<Marker, ImageStoreInfo> mMarkerMaps = new HashMap<Marker, ImageStoreInfo>();
+    private BitmapDescriptor pinDescriptor;
+    private DrawerLayout mDrawerLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_history);
         ButterKnife.inject(this);
         setActionBar();
-
+        pinDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.pin);
         mUserData = getIntent().getParcelableExtra("userinfo");
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
 
         mNavigationDrawerFragment.setUserData(mUserData);
         mNavigationDrawerFragment.setUpListView();
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+                mDrawerLayout
+        );
         try {
             initilizeMap();
             updateLocationHistory();
@@ -135,6 +157,7 @@ public class LocationHistoryActivity extends FragmentActivity
                 sortList();
                 showControlPanel();
                 displayLocationLine(result);
+//                displayMarker(getLocation(mLocationHead));
                 displayLocationCircle(result.getList().get(0));
                 mProgressContainer.setVisibility(View.GONE);
                 moveToCurrentLocation(result.getList().get(0));
@@ -177,6 +200,7 @@ public class LocationHistoryActivity extends FragmentActivity
     {
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "http://kid-sheriff-001.appspot.com/apis/getImages/name="+mNavigationDrawerFragment.getSelectedAccount();
+        Log.d(TAG, "updateImageHistory:"+url);
         client.get(this,url, new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
@@ -188,8 +212,11 @@ public class LocationHistoryActivity extends FragmentActivity
                 Log.d(TAG, "status Code:" + statusCode + "/"+ responseString);
                 Gson gson = new Gson();
                 ImageStoreInfoList list = gson.fromJson(responseString, ImageStoreInfoList.class);
-                mNavigationDrawerFragment.updatePhoto(list.getList());
+                mNavigationDrawerFragment.updatePhoto(list.getList(),0);
+                makeImageMarker(list);
             }
+
+
         });
     }
 
@@ -217,13 +244,64 @@ public class LocationHistoryActivity extends FragmentActivity
         mControllPanel.setVisibility(View.VISIBLE);
     }
 
-    private void displayMarker(kr.co.starmark.kidsheriff.request.Location loc,String msg)
+    private void displayMarker(kr.co.starmark.kidsheriff.request.Location loc)
     {
+        DateTimeFormatter fmt = DateTimeFormat.mediumDateTime();
+        String date = DateTime.parse(loc.getDate()).toString(fmt);
+        StringBuilder builder = new StringBuilder();
+//        Address address = getAddress(getApplicationContext(),loc);
+        String title = "위도:"+loc.getLat()+"\n경도 :"+loc.getLng();
+
+//        if(address != null) {
+//            int maxLine = address.getMaxAddressLineIndex();
+//            for (int i = 0; i < maxLine; i++)
+//                builder.append(address.getAddressLine(i)).append("\n");
+//            title = builder.toString();
+//            Log.d(TAG, title);
+//        }
+
         mCurrentMarker = mGoogleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(loc.getLat(), loc.getLng()))
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.pin))
+                .icon(pinDescriptor)
+                .title(title)
+                .snippet(date)
+        );
+    }
+    private void displayMarker(kr.co.starmark.kidsheriff.request.Location loc,String msg)
+    {
+
+        mCurrentMarker = mGoogleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(loc.getLat(), loc.getLng()))
+                .icon(pinDescriptor)
                 .title(msg));
     }
+
+    private void makeImageMarker(ImageStoreInfoList list) {
+        DateTimeFormatter fmt = DateTimeFormat.mediumDateTime();
+
+        List<ImageStoreInfo> imageInfoList = list.getList();
+
+        if(imageInfoList == null) return;
+        int length = imageInfoList.size();
+        if(length == 0) return;
+        for(int i = 0 ; i < length ; i++) {
+            ImageStoreInfo info = imageInfoList.get(i);
+            Log.d(TAG, info.toString());
+            //String date = DateTime.parse(info.getDate()).toString(fmt);
+            String date = "";
+            String title = "위도:"+info.getLat()+"\n경도 :"+info.getLng();
+            mMarkerMaps.put(makeMarker(new LatLng(info.getLat(), info.getLng()), title, date), info);
+        }
+    }
+
+    public Marker makeMarker(LatLng latLng,String date,String title) {
+        return mGoogleMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .icon(pinDescriptor)
+                .snippet(date)
+                .title(title));
+    }
+
 
     private void removeMarker()
     {
@@ -294,10 +372,8 @@ public class LocationHistoryActivity extends FragmentActivity
         displayHeadLocation();
 
         removeMarker();
-        if(mLocationHead == 0)
-            displayMarker(getLocation(mLocationHead),"가장 최근 위치 입니다.");
-        else
-            displayMarker(getLocation(mLocationHead),"");
+        displayMarker(getLocation(mLocationHead));
+        mCurrentMarker.showInfoWindow();
     }
 
     @OnClick(R.id.map_nav_prev)
@@ -309,13 +385,10 @@ public class LocationHistoryActivity extends FragmentActivity
         else
             mLocationHead = length;
 
-        removeMarker();
         displayHeadLocation();
-
-        if(mLocationHead == length)
-            displayMarker(getLocation(mLocationHead),"처음 기록된 위치 입니다.");
-        else
-            displayMarker(getLocation(mLocationHead),"");
+        removeMarker();
+        displayMarker(getLocation(mLocationHead));
+        mCurrentMarker.showInfoWindow();
     }
 
     @OnClick(R.id.map_nav_recent)
@@ -323,7 +396,8 @@ public class LocationHistoryActivity extends FragmentActivity
     {
         mLocationHead = 0;
         removeMarker();
-        displayMarker(getLocation(mLocationHead),"최근 기록된 위치 입니다.");
+        displayMarker(getLocation(mLocationHead));
+        mCurrentMarker.showInfoWindow();
         displayHeadLocation();
     }
 
@@ -353,6 +427,37 @@ public class LocationHistoryActivity extends FragmentActivity
 
             mGoogleMap.setMyLocationEnabled(false);
             mGoogleMap.getUiSettings().setZoomControlsEnabled(false);
+            mGoogleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                @Override
+                public View getInfoWindow(Marker marker) {
+                    if(mInfoWindow == null)
+                        mInfoWindow = View.inflate(getApplicationContext(),R.layout.info_window, null);
+
+                    TextView address = (TextView) mInfoWindow.findViewById(R.id.adress);
+                    address.setText(marker.getTitle());
+
+                    TextView title = (TextView) mInfoWindow.findViewById(R.id.date);
+                    title.setText(marker.getSnippet());
+
+                    return mInfoWindow;
+                }
+
+                @Override
+                public View getInfoContents(Marker marker) {
+                    return null;
+                }
+            });
+
+            mGoogleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                @Override
+                public void onInfoWindowClick(Marker marker) {
+                    ImageStoreInfo info = mMarkerMaps.get(marker);
+                    if(info == null)
+                        return;
+                    mNavigationDrawerFragment.updatePhoto(info.getImgUrl());
+                    mDrawerLayout.openDrawer(mDrawerLayout);
+                }
+            });
             // check if map is created successfully or not
             if (mGoogleMap == null) {
                 Toast.makeText(getApplicationContext(),
@@ -372,8 +477,25 @@ public class LocationHistoryActivity extends FragmentActivity
     }
 
     public void onSectionAttached(int number) {
+        removeAllMapObject();
         updateLocationHistory();
         updateImageHistory();
+    }
+
+    public void removeAllMapObject()
+    {
+        removeAllImageMarker();
+        removeMarker();
+        removeCurrentCircle();
+        removeCurrentCircle();
+    }
+
+    public void removeAllImageMarker()
+    {
+        Set<Marker> keys = mMarkerMaps.keySet();
+        for(Marker m:keys)
+            m.remove();
+        mMarkerMaps.clear();
     }
 
     public void setActionBar() {
@@ -381,6 +503,20 @@ public class LocationHistoryActivity extends FragmentActivity
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(R.string.app_name);
+    }
+
+    public static Address getAddress(final Context context,
+                                     final kr.co.starmark.kidsheriff.request.Location loc) {
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            addresses = geocoder.getFromLocation(loc.getLat(), loc.getLng(), 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return addresses.get(0);
     }
 
     @Override
