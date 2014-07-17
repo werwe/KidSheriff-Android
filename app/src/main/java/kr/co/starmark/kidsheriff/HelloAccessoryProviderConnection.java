@@ -50,7 +50,7 @@ public class HelloAccessoryProviderConnection extends SASocket {
 
     @Override
     public void onReceive(int channelId, byte[] data) {
-        Log.d(TAG, "onReceive");
+        //Log.d(TAG, "onReceive");
 
         String msg = new String(data);
 
@@ -63,12 +63,12 @@ public class HelloAccessoryProviderConnection extends SASocket {
             client.get(mContext, "http://kid-sheriff-001.appspot.com/apis/pushNoti/name=" + SharedPref.get(mContext).loadDefaultAccount(), new TextHttpResponseHandler() {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                    Log.d(TAG, "status code:" + statusCode, throwable);
+                    //Log.d(TAG, "status code:" + statusCode, throwable);
                 }
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                    Log.d(TAG, "status code:" + statusCode + "\n"+responseString);
+                    //Log.d(TAG, "status code:" + statusCode + "\n"+responseString);
                 }
             });
         }
@@ -80,7 +80,7 @@ public class HelloAccessoryProviderConnection extends SASocket {
         else
         {
             String s = new String(data).split(",")[1];
-            Log.d(TAG, "data:" + s);
+            //Log.d(TAG, "data:" + s);
 
             byte[] decode = Base64.decode(s, Base64.DEFAULT);
 
@@ -88,7 +88,7 @@ public class HelloAccessoryProviderConnection extends SASocket {
             Bitmap bitmap = BitmapFactory.decodeByteArray(decode, 0, decode.length);
 
             File outputDir = mContext.getExternalCacheDir(); // context being the Activity pointer
-            Log.d(TAG, "out put dir:" + outputDir.getAbsolutePath());
+            //Log.d(TAG, "out put dir:" + outputDir.getAbsolutePath());
             if(!outputDir.exists())
                 outputDir.mkdirs();
 

@@ -32,7 +32,13 @@ import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.TextHttpResponseHandler;
 import com.nineoldandroids.view.ViewHelper;
+
+import org.apache.http.Header;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -90,7 +96,7 @@ public class SplashActivity extends Activity {
     protected void onActivityResult(final int requestCode, final int resultCode,final Intent data) {
         if (requestCode == ACCOUNT_PICKER_REQUEST && resultCode == RESULT_OK) {
             String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-            Log.d(TAG, "accountName:" + accountName);
+            //Log.d(TAG, "accountName:" + accountName);
             SharedPref.get(this).saveDefaultAccount(accountName);
             checkServerAccount(accountName);
         }
@@ -109,13 +115,15 @@ public class SplashActivity extends Activity {
         Response.Listener<UserDataResult> response = new Response.Listener<UserDataResult>() {
             @Override
             public void onResponse(UserDataResult result) {
-                Log.d("result", result.getResult());
+                //Log.d("result", result.getResult());
                 dialog.dismiss();
                 Intent intent = null;
                 if (result.getResult().equals("notExist"))
                     intent = new Intent(getApplicationContext(), RegistActivity.class);
-                else
+                else {
                     intent = new Intent(getApplicationContext(), LocationHistoryActivity.class);
+                    updateAccount();
+                }
                 result.setEmail(name);
                 intent.putExtra("userinfo", result);
                 startActivity(intent);
@@ -127,7 +135,7 @@ public class SplashActivity extends Activity {
         Response.ErrorListener errorCallback = new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Log.d("onErrorResponse", volleyError.getMessage());
+                //Log.d("onErrorResponse", volleyError.getMessage());
                 AlertDialog.Builder builder = new AlertDialog.Builder(SplashActivity.this);
                 builder.setTitle("계정을 확인하던 중 오류가 발생했습니다.");
                 builder.setMessage(volleyError.getMessage());
@@ -151,6 +159,12 @@ public class SplashActivity extends Activity {
                         errorCallback
                 )
         );
+    }
+
+    private void updateAccount() {
+        String emailId = SharedPref.get(getApplicationContext()).loadDefaultAccount();
+        String registId = getRegistrationId(getApplicationContext());
+        //MyApplication.updateAccount(emailId, registId);
     }
 
     @Override
@@ -181,7 +195,7 @@ public class SplashActivity extends Activity {
         super.onResume();
         checkPlayServices();
 
-        Log.d(TAG, getRegistrationId(this));
+        //Log.d(TAG, getRegistrationId(this));
     }
 
 //    private void ShowLogo() {
@@ -306,6 +320,37 @@ public class SplashActivity extends Activity {
 
     private SharedPreferences getGcmPreferences(Context context) {
         return getSharedPreferences("GCMStorePref", Context.MODE_PRIVATE);
+    }
+
+    public static class UpdateAccountAsyncTask extends AsyncTask<Void,Void,Void>
+    {
+        private Context mContext;
+        private String emailId;
+        private String registId;
+
+        public UpdateAccountAsyncTask(Context context,String emailAccount ,String registId)
+        {
+            mContext = context;
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            AsyncHttpClient client = new AsyncHttpClient();
+            RequestParams params = new RequestParams();
+            params.put("emailId",emailId);
+            params.put("pushId",registId);
+            client.post(mContext,"http://kid-sheriff-001.appspot.com/apis/updateAccount",params,new TextHttpResponseHandler() {
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    //Log.d(TAG, "status code:" + statusCode, throwable);
+                }
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                    //Log.d(TAG, "status code:" + statusCode + "responseString");
+                }
+            });
+            return null;
+        }
     }
 }
 

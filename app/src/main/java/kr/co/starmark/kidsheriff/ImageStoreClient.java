@@ -53,12 +53,12 @@ public class ImageStoreClient {
         client.get(mContext, getUrl, new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Log.d("onFailure", "status code:" + statusCode + "/" + responseString);
+                //Log.d("onFailure", "status code:" + statusCode + "/" + responseString);
             }
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                Log.d("onSuccess", responseString);
+                //Log.d("onSuccess", responseString);
                 Gson gson = new Gson();
                 FileUrl uploadUrl = gson.fromJson(responseString, FileUrl.class);
                 upload(file, uploadUrl);
@@ -74,7 +74,7 @@ public class ImageStoreClient {
         //double lng = Double.parseDouble(req.getParameter("lng"));
         //String date = req.getParameter("date");
 
-        Log.d(TAG, "Upload Url:" + uploadUrl.getUrl());
+        //Log.d(TAG, "Upload Url:" + uploadUrl.getUrl());
 
         RequestParams params = new RequestParams();
         SharedPref pref = SharedPref.get(mContext);
@@ -92,19 +92,19 @@ public class ImageStoreClient {
         client.post(mContext,uploadUrl.getUrl(),params, new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Log.d("uploadFile", "onFailure: statusCode: " + statusCode + "/" + responseString);
-                Log.d("uploadFile","error",throwable);
+                //Log.d("uploadFile", "onFailure: statusCode: " + statusCode + "/" + responseString);
+                //Log.d("uploadFile","error",throwable);
 //                if(file.exists())
 //                    file.delete();
             }
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                Log.d("uploadFile", "onSuccess:" + responseString);
+                //Log.d("uploadFile", "onSuccess:" + responseString);
                 Gson gson = new Gson();
                 Entity entity = gson.fromJson(responseString, Entity.class);
                 FileMeta meta = entity.getFiles().get(0);
-                Log.d(TAG, "download Url:" + "http://kid-sheriff-001.appspot.com"+meta.getUrl());
+                //Log.d(TAG, "download Url:" + "http://kid-sheriff-001.appspot.com"+meta.getUrl());
                 //downloadFile(meta.getFiles().get(0));
 //                if(file.exists())
 //                    file.delete();
@@ -118,16 +118,16 @@ public class ImageStoreClient {
         //Volley로 변경 해야함.
         AsyncHttpClient client = new AsyncHttpClient();
 
-        Log.d(TAG, "download Url:" + "http://kid-sheriff-001.appspot.com"+meta.getUrl());
+        //Log.d(TAG, "download Url:" + "http://kid-sheriff-001.appspot.com"+meta.getUrl());
         client.get(mContext,"http://kid-sheriff-001.appspot.com"+meta.getUrl(),null,new FileAsyncHttpResponseHandler(mContext) {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, File file) {
-                Log.d("downloadFile", "onFailure:" + file.getAbsolutePath());
+                //Log.d("downloadFile", "onFailure:" + file.getAbsolutePath());
             }
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, File file) {
-                Log.d("downloadFile", "onSuccess:" + file.getAbsolutePath());
+                //Log.d("downloadFile", "onSuccess:" + file.getAbsolutePath());
             }
         });
     }

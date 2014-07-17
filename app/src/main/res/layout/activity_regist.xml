@@ -97,7 +97,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/step2"
         android:layout_gravity="center_horizontal"
-        android:text="보호자 휴대폰의 계정을 입력해주세요."
+        android:text="아이 휴대폰의 계정을 입력해주세요."
         android:textSize="18dp" />
 
     <Button

@@ -7,6 +7,9 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -134,7 +137,51 @@ public class LocationHistoryActivity extends FragmentActivity
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        MyApplication.updateAccount(this,mUserData.getEmail(),getRegistrationId(getApplicationContext()));
     }
+
+
+
+    public static final String PROPERTY_REG_ID = "registration_id";
+    private static final String PROPERTY_APP_VERSION = "appVersion";
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private static final int ACCOUNT_PICKER_REQUEST = 10000;
+    String SENDER_ID = "1098403155208";
+
+    private SharedPreferences getGcmPreferences(Context context) {
+        return getSharedPreferences("GCMStorePref", Context.MODE_PRIVATE);
+    }
+
+    private String getRegistrationId(Context context) {
+        final SharedPreferences prefs = getGcmPreferences(context);
+        String registrationId = prefs.getString(PROPERTY_REG_ID, "");
+        if (registrationId.isEmpty()) {
+            Log.i(TAG, "Registration not found.");
+            return "";
+        }
+        //앱이 업데이트 되면 기존registration id 가 푸시를 받는 걸 보장 하지 않는다.
+        //해서 빈 아이디를 던지고 새로 받도록 처리한다.
+        //서버의 push id 도 같이 갱신 해야한다.
+        //default account로 push id 갱신하는 코드를 넣어야 함.
+        int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+        int currentVersion = getAppVersion(context);
+        if (registeredVersion != currentVersion) {
+            Log.i(TAG, "App version changed.");
+            return "";
+        }
+        return registrationId;
+    }
+    private static int getAppVersion(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException("Could not get package name: " + e);
+        }
+    }
+
 
     void updateLocationHistory()
     {
@@ -143,7 +190,7 @@ public class LocationHistoryActivity extends FragmentActivity
         {
             @Override
             public void onResponse(LocationHistoryResult result) {
-                Log.d("result", result.toString());
+                //Log.d("result", result.toString());
                 mLocations = result.getList();
                 if(result.getList().size() == 0)
                 {
@@ -167,7 +214,7 @@ public class LocationHistoryActivity extends FragmentActivity
         Response.ErrorListener errorCallback = new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Log.d("onErrorResponse", " "+volleyError.getMessage());
+                //Log.d("onErrorResponse", " "+volleyError.getMessage());
                 //Toast.makeText(LocationHistoryActivity.this, volleyError.getMessage(), Toast.LENGTH_LONG).show();
                 removePolyLine();
                 removeCurrentCircle();
@@ -179,7 +226,7 @@ public class LocationHistoryActivity extends FragmentActivity
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         HistoryRequestData data = new HistoryRequestData();
         data.setRequestorId(mUserData.getEmail());
-        Log.d(TAG, mNavigationDrawerFragment.getSelectedAccount());
+        //Log.d(TAG, mNavigationDrawerFragment.getSelectedAccount());
         data.setTargetUserId(mNavigationDrawerFragment.getSelectedAccount());
         data.setLimit(100);
         Gson gson = new Gson();
@@ -200,16 +247,16 @@ public class LocationHistoryActivity extends FragmentActivity
     {
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "http://kid-sheriff-001.appspot.com/apis/getImages/name="+mNavigationDrawerFragment.getSelectedAccount();
-        Log.d(TAG, "updateImageHistory:"+url);
+        //Log.d(TAG, "updateImageHistory:"+url);
         client.get(this,url, new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Log.d(TAG, "status Code:" + statusCode + "/"+ responseString,throwable);
+                //Log.d(TAG, "status Code:" + statusCode + "/"+ responseString,throwable);
             }
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                Log.d(TAG, "status Code:" + statusCode + "/"+ responseString);
+                //Log.d(TAG, "status Code:" + statusCode + "/"+ responseString);
                 Gson gson = new Gson();
                 ImageStoreInfoList list = gson.fromJson(responseString, ImageStoreInfoList.class);
                 mNavigationDrawerFragment.updatePhoto(list.getList(),0);
@@ -286,7 +333,7 @@ public class LocationHistoryActivity extends FragmentActivity
         if(length == 0) return;
         for(int i = 0 ; i < length ; i++) {
             ImageStoreInfo info = imageInfoList.get(i);
-            Log.d(TAG, info.toString());
+            //Log.d(TAG, info.toString());
             //String date = DateTime.parse(info.getDate()).toString(fmt);
             String date = "";
             String title = "위도:"+info.getLat()+"\n경도 :"+info.getLng();

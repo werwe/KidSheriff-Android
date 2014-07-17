@@ -45,7 +45,7 @@ public class PhotoPagerAdapter extends PagerAdapter {
             imgView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) mContext.getResources().getDimension(R.dimen.navigation_drawer_width)));
             String url = "http://kid-sheriff-appspot.com/apis/file/" + mMetaList.get(position).getImgUrl();
             imgView.setBackgroundColor(Color.RED);
-            Log.d(TAG,"Instantiateitem:"+ url);
+            //Log.d(TAG,"Instantiateitem:"+ url);
             imgView.setImageUrl(url,mImageLoader);
             pager.addView(imgView, 0);
             return imgView;

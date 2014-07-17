@@ -46,12 +46,12 @@ public class LocationUploadService extends IntentService {
 
     public LocationUploadService() {
         super("LocationUploadService");
-        Log.d(TAG, "LocationUploadService - constructor");
+        //Log.d(TAG, "LocationUploadService - constructor");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d(TAG, "onHandleIntent");
+        //Log.d(TAG, "onHandleIntent");
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_FOO.equals(action)) {
@@ -68,24 +68,24 @@ public class LocationUploadService extends IntentService {
 
 
     private void handleActionFoo(String param1, String param2) {
-        Log.d(TAG, "handleActionFoo");
+        //Log.d(TAG, "handleActionFoo");
     }
 
     private void handleActionBaz(String param1, String param2) {
-        Log.d(TAG, "handleActionFoo");
+        //Log.d(TAG, "handleActionFoo");
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "Location Upload Service onCreate");
+        //Log.d(TAG, "Location Upload Service onCreate");
         mLocationUpdater = new LocationUpdater(getApplicationContext());
         mLocationUpdater.connect();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "OnStartCommand");
+        //Log.d(TAG, "OnStartCommand");
         return Service.START_REDELIVER_INTENT;
     }
 
@@ -93,6 +93,6 @@ public class LocationUploadService extends IntentService {
     public void onDestroy() {
         super.onDestroy();
         mLocationUpdater.disconnect();
-        Log.d(TAG, "Location Upload Service Destory");
+        //Log.d(TAG, "Location Upload Service Destory");
     }
 }

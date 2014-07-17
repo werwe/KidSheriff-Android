@@ -65,13 +65,13 @@ public class LocationUpdater implements
 
     public void connect()
     {
-        Log.d(TAG,"connect");
+        //Log.d(TAG,"connect");
         mLocationClient.connect();
     }
 
     public void disconnect()
     {
-        Log.d(TAG,"disconnect");
+        //Log.d(TAG,"disconnect");
         // If the client is connected
         if (mLocationClient.isConnected()) {
             /*
@@ -96,7 +96,7 @@ public class LocationUpdater implements
     public void requestLocationUpdates()
     {
         if (mUpdatesRequested) {
-            Log.d(TAG,"requestLocationUpdates");
+            //Log.d(TAG,"requestLocationUpdates");
             mLocationClient.requestLocationUpdates(mLocationRequest, this);
         }
     }
@@ -121,7 +121,7 @@ public class LocationUpdater implements
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(TAG,"onLocationChanged");
+        //Log.d(TAG,"onLocationChanged");
 
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         String currentTime = DateTime.now().toString(fmt);
@@ -134,18 +134,18 @@ public class LocationUpdater implements
         pref.saveLastLat((float) location.getLat());
         pref.saveLastLng((float) location.getLng());
 
-        Log.d(TAG, "uplaod location:" + location.toString());
+        //Log.d(TAG, "uplaod location:" + location.toString());
         Response.Listener<String> response = new Response.Listener<String>() {
             @Override
             public void onResponse(String result) {
-                Log.d(TAG, "result:" + result);
+                //Log.d(TAG, "result:" + result);
             }
         };
 
         Response.ErrorListener errorCallback = new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Log.d(TAG, "volley error:" + volleyError.getMessage());
+                //Log.d(TAG, "volley error:" + volleyError.getMessage());
             }
         };
 
@@ -158,7 +158,7 @@ public class LocationUpdater implements
         data.setLoc(location);
 
         Gson gson = new Gson();
-        Log.d(TAG, gson.toJson(data).toString());
+        //Log.d(TAG, gson.toJson(data).toString());
         requestQueue.add(
                 new GsonRequest<String>(
                         Request.Method.POST,

@@ -136,7 +136,7 @@ public class RegistActivity extends Activity {
         {
             @Override
             public void onResponse(String result) {
-                Log.d("result", result);
+                //Log.d("result", result);
                 if (result.equals("success")) {
                     progress.dismiss();
                     moveToLocationHistoryActivity();
@@ -147,7 +147,7 @@ public class RegistActivity extends Activity {
         Response.ErrorListener errorCallback = new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Log.d("onErrorResponse", volleyError.getMessage());
+                //Log.d("onErrorResponse", volleyError.getMessage());
                 Toast.makeText(RegistActivity.this, volleyError.getMessage(), Toast.LENGTH_LONG).show();
                 progress.dismiss();
             }
@@ -158,7 +158,7 @@ public class RegistActivity extends Activity {
         data.email = mUserData.getEmail();
         data.linkedAccounts = emailList;
         data.pushid = getRegistrationId(getApplicationContext());
-        Log.d("pushId", data.pushid);
+        //Log.d("pushId", data.pushid);
         data.whichSide = mCheckId == R.id.parent ? 2 : 1 ;
 
         mUserData.setLinkedAccounts(data.linkedAccounts);
