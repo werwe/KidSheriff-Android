@@ -90,6 +90,7 @@ public class SplashActivity extends Activity {
     protected void onActivityResult(final int requestCode, final int resultCode,final Intent data) {
         if (requestCode == ACCOUNT_PICKER_REQUEST && resultCode == RESULT_OK) {
             String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+            Log.d(TAG, "accountName:" + accountName);
             SharedPref.get(this).saveDefaultAccount(accountName);
             checkServerAccount(accountName);
         }
@@ -180,7 +181,7 @@ public class SplashActivity extends Activity {
         super.onResume();
         checkPlayServices();
 
-        Log.d(TAG,getRegistrationId(this));
+        Log.d(TAG, getRegistrationId(this));
     }
 
 //    private void ShowLogo() {

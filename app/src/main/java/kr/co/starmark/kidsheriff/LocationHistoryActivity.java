@@ -213,7 +213,7 @@ public class LocationHistoryActivity extends FragmentActivity
                 Gson gson = new Gson();
                 ImageStoreInfoList list = gson.fromJson(responseString, ImageStoreInfoList.class);
                 mNavigationDrawerFragment.updatePhoto(list.getList(),0);
-                makeImageMarker(list);
+                //makeImageMarker(list);
             }
 
 
@@ -455,7 +455,7 @@ public class LocationHistoryActivity extends FragmentActivity
                     if(info == null)
                         return;
                     mNavigationDrawerFragment.updatePhoto(info.getImgUrl());
-                    mDrawerLayout.openDrawer(mDrawerLayout);
+                    //mDrawerLayout.openDrawer(mDrawerLayout);
                 }
             });
             // check if map is created successfully or not
@@ -530,6 +530,7 @@ public class LocationHistoryActivity extends FragmentActivity
         if( id == R.id.action_refresh)
         {
             updateLocationHistory();
+            updateImageHistory();
             return true;
         }
         if (id == R.id.action_settings) {
