@@ -13,6 +13,7 @@ import android.util.Log;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.TextHttpResponseHandler;
 import com.samsung.android.sdk.accessory.SASocket;
 
 import org.apache.http.Header;
@@ -59,7 +60,17 @@ public class HelloAccessoryProviderConnection extends SASocket {
             mContext.startService(service);
             //http://kid-sheriff-001.appspot.com/apis/pushNoti/name={name}
             AsyncHttpClient client = new AsyncHttpClient();
-            client.get(mContext, "http://kid-sheriff-001.appspot.com/apis/pushNoti/name=" + SharedPref.get(mContext).loadDefaultAccount(),null);
+            client.get(mContext, "http://kid-sheriff-001.appspot.com/apis/pushNoti/name=" + SharedPref.get(mContext).loadDefaultAccount(), new TextHttpResponseHandler() {
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    Log.d(TAG, "status code:" + statusCode, throwable);
+                }
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                    Log.d(TAG, "status code:" + statusCode);
+                }
+            });
         }
         else if(msg.startsWith("endGPS"))
         {
