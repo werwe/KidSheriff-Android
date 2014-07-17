@@ -44,7 +44,7 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
         // Start the service, keeping the device awake while it is launching.
         //startWakefulService(context, (intent.setComponent(comp)));
         //setResultCode(Activity.RESULT_OK);
-        sendNotification(context,"아이가 위험해요. 앱으로 이동해 아이 위치를 확인해 주세요.");
+        sendNotification(context,"아이가 메시지를 보냈어요. 앱으로 이동해 아이 위치를 확인해 주세요.");
     }
 
     private void sendNotification(Context context, String msg) {

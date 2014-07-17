@@ -68,7 +68,7 @@ public class HelloAccessoryProviderConnection extends SASocket {
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                    Log.d(TAG, "status code:" + statusCode);
+                    Log.d(TAG, "status code:" + statusCode + "\n"+responseString);
                 }
             });
         }
