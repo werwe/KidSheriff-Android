@@ -78,7 +78,7 @@ public class LocationUploadService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "onCreate");
+        Log.d(TAG, "Location Upload Service onCreate");
         mLocationUpdater = new LocationUpdater(getApplicationContext());
         mLocationUpdater.connect();
     }
@@ -87,5 +87,11 @@ public class LocationUploadService extends IntentService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "OnStartCommand");
         return Service.START_REDELIVER_INTENT;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "Location Upload Service Destory");
     }
 }

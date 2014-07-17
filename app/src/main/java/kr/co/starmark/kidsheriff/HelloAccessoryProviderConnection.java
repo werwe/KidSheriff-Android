@@ -50,14 +50,21 @@ public class HelloAccessoryProviderConnection extends SASocket {
     @Override
     public void onReceive(int channelId, byte[] data) {
         Log.d(TAG, "onReceive");
-        if(data.length == 0) {
-            //위치 전송 서비스 를 시작
-            //&& push notification
-            Log.d(TAG, mConnectionId + " / " + channelId);
+
+        String msg = new String(data);
+
+        if(msg.startsWith("startGPS"))
+        {
             Intent service = new Intent(mContext, LocationUploadService.class);
             mContext.startService(service);
-        }else {
-
+        }
+        else if(msg.startsWith("endGPS"))
+        {
+            Intent service = new Intent(mContext, LocationUploadService.class);
+            mContext.stopService(service);
+        }
+        else
+        {
             String s = new String(data).split(",")[1];
             Log.d(TAG, "data:" + s);
 
