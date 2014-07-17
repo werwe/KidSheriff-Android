@@ -57,6 +57,9 @@ public class HelloAccessoryProviderConnection extends SASocket {
         {
             Intent service = new Intent(mContext, LocationUploadService.class);
             mContext.startService(service);
+            //http://kid-sheriff-001.appspot.com/apis/pushNoti/name={name}
+            AsyncHttpClient client = new AsyncHttpClient();
+            client.get(mContext, "http://kid-sheriff-001.appspot.com/apis/pushNoti/name=" + SharedPref.get(mContext).loadDefaultAccount(),null);
         }
         else if(msg.startsWith("endGPS"))
         {

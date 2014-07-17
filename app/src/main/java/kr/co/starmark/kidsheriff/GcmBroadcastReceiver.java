@@ -16,9 +16,12 @@
 package kr.co.starmark.kidsheriff;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
 
@@ -32,13 +35,34 @@ import android.support.v4.content.WakefulBroadcastReceiver;
  */
 
 public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
-
+    public static final int NOTIFICATION_ID = 1;
+    NotificationManager mNotificationManager;
     @Override
     public void onReceive(Context context, Intent intent) {
         // Explicitly specify that GcmIntentService will handle the intent.
-        ComponentName comp = new ComponentName(context.getPackageName(), GcmIntentService.class.getName());
+        //ComponentName comp = new ComponentName(context.getPackageName(), GcmIntentService.class.getName());
         // Start the service, keeping the device awake while it is launching.
-        startWakefulService(context, (intent.setComponent(comp)));
-        setResultCode(Activity.RESULT_OK);
+        //startWakefulService(context, (intent.setComponent(comp)));
+        //setResultCode(Activity.RESULT_OK);
+        sendNotification(context,"아이가 위험해요. 앱으로 이동해 아이 위치를 확인해 주세요.");
+    }
+
+    private void sendNotification(Context context, String msg) {
+        mNotificationManager = (NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+                new Intent(context, SplashActivity.class), 0);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.drawable.ic_stat_gcm)
+                        .setContentTitle("보안관 알림")
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                                .bigText(msg))
+                        .setContentText(msg);
+
+        mBuilder.setContentIntent(contentIntent);
+        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }
 }

@@ -92,6 +92,7 @@ public class LocationUploadService extends IntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mLocationUpdater.disconnect();
         Log.d(TAG, "Location Upload Service Destory");
     }
 }
