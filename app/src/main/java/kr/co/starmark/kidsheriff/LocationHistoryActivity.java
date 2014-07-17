@@ -158,7 +158,7 @@ public class LocationHistoryActivity extends FragmentActivity
                 showControlPanel();
                 displayLocationLine(result);
 //                displayMarker(getLocation(mLocationHead));
-                displayLocationCircle(result.getList().get(0));
+//                displayLocationCircle(result.getList().get(0));
                 mProgressContainer.setVisibility(View.GONE);
                 moveToCurrentLocation(result.getList().get(0));
             }
@@ -168,7 +168,7 @@ public class LocationHistoryActivity extends FragmentActivity
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 Log.d("onErrorResponse", " "+volleyError.getMessage());
-                Toast.makeText(LocationHistoryActivity.this, volleyError.getMessage(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(LocationHistoryActivity.this, volleyError.getMessage(), Toast.LENGTH_LONG).show();
                 removePolyLine();
                 removeCurrentCircle();
                 mProgressContainer.setVisibility(View.GONE);
@@ -335,7 +335,7 @@ public class LocationHistoryActivity extends FragmentActivity
 
     private void displayLocationCircle(kr.co.starmark.kidsheriff.request.Location loc)
     {
-        removeCurrentCircle();
+        //removeCurrentCircle();
         LatLng center = new LatLng(loc.getLat(), loc.getLng());
         CircleOptions options = new CircleOptions();
         options.fillColor(Color.parseColor("#FFBB33"));
@@ -411,7 +411,7 @@ public class LocationHistoryActivity extends FragmentActivity
 
     private void displayHeadLocation() {
         kr.co.starmark.kidsheriff.request.Location headLocation = getLocation(mLocationHead);
-        displayLocationCircle(headLocation);
+        //displayLocationCircle(headLocation);
         moveToHeadLocation(headLocation);
     }
 
@@ -486,8 +486,7 @@ public class LocationHistoryActivity extends FragmentActivity
     {
         removeAllImageMarker();
         removeMarker();
-        removeCurrentCircle();
-        removeCurrentCircle();
+        //removeCurrentCircle();
     }
 
     public void removeAllImageMarker()
