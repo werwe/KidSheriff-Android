@@ -1,0 +1,63 @@
+// Currently, the appengine gradle plugin's appengine devappserver launch doesn't interact well with Intellij/AndroidStudio's
+// Gradle integration.  As a temporary solution, please launch from the command line.
+// ./gradlew modulename:appengineRun
+// If you would like more information on the gradle-appengine-plugin please refer to the github page
+// https://github.com/GoogleCloudPlatform/gradle-appengine-plugin
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.appengine:gradle-appengine-plugin:1.9.6'
+    }
+}
+
+repositories {
+    mavenCentral();
+}
+
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'appengine'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+dependencies {
+    appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.6'
+    compile 'com.google.appengine:appengine-endpoints:1.9.6'
+    compile 'com.google.appengine:appengine-endpoints-deps:1.9.6'
+    compile 'javax.servlet:servlet-api:2.5'
+    compile 'com.googlecode.objectify:objectify:+'
+    compile 'com.ganyo:gcm-server:1.0.2'
+    compile 'joda-time:joda-time:2.3'
+    compile 'org.projectlombok:lombok:0.10.6@jar'
+
+    compile 'org.glassfish.jersey.core:jersey-common:2.10.1'
+    compile 'org.glassfish.jersey.core:jersey-client:2.10.1'
+    compile 'org.glassfish.jersey.core:jersey-server:2.10.1'
+    compile 'org.glassfish.jersey.containers:jersey-container-servlet-core:2.10.1'
+    compile 'org.glassfish.jersey.media:jersey-media-multipart:2.10.1'
+    compile 'org.glassfish.jersey.media:jersey-media-json-jackson:2.10.1'
+
+}
+
+appengine {
+    downloadSdk = true
+    appcfg {
+        email = 'werwe@starmark.co.kr'
+        oauth2 = true
+    }
+    app {
+        app_id = 'kid-sheriff-001'
+        version = 1
+    }
+    endpoints {
+
+        clientLibsJarOut = true
+        getClientLibsOnBuild = true
+        getDiscoveryDocsOnBuild = true
+    }
+}
